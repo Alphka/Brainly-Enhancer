@@ -1,0 +1,35 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": false,
+		"allowSyntheticDefaultImports": true,
+		"baseUrl": ".",
+		"module": "ESNext",
+		"downlevelIteration": true,
+		"lib": [
+			"ES5",
+			"ES6",
+			"ES2015.Collection",
+			"ES2015.Iterable",
+			"DOM",
+			"ES2017"
+		],
+		"moduleResolution": "Node",
+		"resolveJsonModule": true,
+		"target": "ES2017",
+		"typeRoots": [
+			"node_modules/@types",
+			"./typings"
+		],
+		"outDir": "../build/"
+	},
+	"include": [
+		"./src/",
+		"./typings/"
+	],
+	"exclude": [
+		"node_modules",
+		"dist/",
+		"build/"
+	]
+}  
