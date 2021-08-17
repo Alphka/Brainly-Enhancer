@@ -142,9 +142,12 @@ select,
 .brn-qpage-next-answer-box-author__tooltip,
 .brn-answers-per-day__container--empty,
 .brn-placeholder__shape,
+.brn-flat-banner,
 .brn-text-block-shade__element,
 .brn-answering-streak__card--locked,
-.brn-kodiak-modal, .brn-kodiak-overlay--opaque,
+.brn-kodiak-modal,
+.brn-kodiak-overlay--opaque,
+.UnloggedHamburgerMenu__container--3xBWb,
 .Placeholder-module__brn-text-block-shade__element--light--qxWU0,
 .Placeholder-module__brn-placeholder__shape--light--1DS5h,
 .PaymentsSummaryElement__titleText--1oUlZ,
@@ -405,7 +408,8 @@ div[class*=Tooltip-module__brn-tooltip-box] .sg-bubble{
 }
 
 /* Questions */
-.brn-qpage-next-answer-box-header--verified{
+.brn-qpage-next-answer-box-header--verified,
+.payments__box--30Jps{
 	background-color: var(--background-color-green)!important;
 }
 

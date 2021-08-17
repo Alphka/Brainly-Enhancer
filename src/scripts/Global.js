@@ -124,7 +124,9 @@ window.BrainlyEnhancer = {
 		"div[class*=SubscriptionInfo__container]",
 		"div.truste_overlay",
 		"div.truste_box_overlay_inner",
-		"div.truste_box_overlay"
+		"div.truste_box_overlay",
+		"div.js-react-kodiak-banner-top",
+		"div.section--lnnYy.section--9DHSr"
 	]
 }
 
@@ -192,7 +194,7 @@ async function appendDarkThemeIcon(){
 				})
 			]
 		})
-
+		
 		document.head.appendChild(createElement("style", {
 			innerHTML: `.menu-element > a[data-track="brainly-enhancer-dark-theme-icon"]::before{background-image: url(${image});}`
 		}));
@@ -235,10 +237,12 @@ async function appendDarkThemeIcon(){
 	}, { once: true })
 }
 
-BrainlyEnhancer.waitElement("head[data-brainly-enhancer-id]").then(() => {
+BrainlyEnhancer.waitElement("head[data-brainly-enhancer-id]").then(async () => {
 	BrainlyEnhancer.extensionId = document.head.dataset.brainlyEnhancerId
 	document.head.removeAttribute("data-brainly-enhancer-id")
-	if(window.dataLayer && window.dataLayer[0].user.isLoggedIn) appendDarkThemeIcon()
+
+	await BrainlyEnhancer.waitObject("window.dataLayer")
+	if(window.dataLayer[0].user.isLoggedIn) appendDarkThemeIcon()
 })
 
 watchForAds()
