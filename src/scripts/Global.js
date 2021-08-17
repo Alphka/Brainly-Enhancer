@@ -1,3 +1,27 @@
+const ContentScript = (function(){
+	let requestId = 0
+
+	function executeAction(data){
+		const id = requestId++
+		return new Promise(resolve => {
+			var listener = e => e.detail.requestId === id && (
+				window.removeEventListener("BrainlyEnhancerSender", listener),
+				resolve(e.detail.data)
+			)
+			
+			window.addEventListener("BrainlyEnhancerSender", listener)
+			window.dispatchEvent(new CustomEvent("BrainlyEnhancer", { detail: {
+				data,
+				requestId: id
+			}}))
+		})
+	}
+
+	return { executeAction }
+})();
+
+window.ContentScript = ContentScript
+
 window.BrainlyEnhancer = {
 	checkPrivileges(...ids){
 		if(!window.dataLayer[0].user.isLoggedIn) return false
@@ -29,18 +53,55 @@ window.BrainlyEnhancer = {
 		Object.getOwnPropertyNames(options).forEach(attribute => element.setAttribute(attribute, options[attribute]))
 		return element
 	},
-	waitElement(selector, max){
-		return new Promise((resolve, reject) => {
-			const begin = Date.now(),
-			interval = setInterval(() => {
-				const element = document.querySelector(selector)
-				if(element){
-					// @ts-ignore
-					resolve(element)
-					clearInterval(interval)
-				}else if(max && Date.now() - begin > max) reject()
-			}, 10)
+	waitElement(selector, multiple = false, element){
+		element = element || document
+		return new Promise(resolve => {
+			const interval = setInterval(() => element.querySelector(selector) && (
+				clearInterval(interval),
+				resolve(multiple ? element.querySelectorAll(selector) : element.querySelector(selector))
+			))
 		})
+	},
+	waitObject(object){
+		return new Promise(resolve => {
+			const interval = setInterval(() => {
+				const element = eval(object)
+				if(element){
+					clearInterval(interval)
+					resolve(element)
+				}
+			})
+		})
+	},
+	log(...args){
+		if(!args || !args.length) return
+		
+		args.every(arg => typeof arg === "string")
+			? console.log("%c" + args.join(" "), "color: #3371ff; font-size:15px;")
+			: args.every(arg => arg instanceof Error)
+			? console.error(...args)
+			: console.log(...args)
+	},
+	async request(url, method = "GET", data, headers = {}){
+		Object.assign(headers, { "Content-Type": "application/json" })
+
+		const response = await fetch(url, {
+			headers,
+			method,
+			body: data ? JSON.stringify(data) : null
+		}),
+		text = await response.text()
+
+		try{
+			return JSON.parse(text)
+		}catch(error){
+			return text
+		}
+	},
+	toBackground(data){
+		return new Promise((resolve, reject) => chrome.runtime.sendMessage(this.extensionId, data, response => {
+			response.success ? resolve(response) : reject(response)
+		}))
 	},
 	selectors: [
 		"div.section--lnnYy.section--3Yobl",
@@ -51,7 +112,6 @@ window.BrainlyEnhancer = {
 		"div.js-react-brainly-plus-box-aside",
 		"div.brn-new-ad-placeholder--for-desktop-and-up",
 		"div.brn-bottom-toplayer",
-		"div.sg-overlay.sg-overlay--dark",
 		"div[data-testid=\"brainly_ads_placeholder\"]",
 		"div.js-react-answers div[data-testid=\"brainly_ads_placeholder\"]",
 		"div[data-testid=\"brainly_plus_toaster_wrapper\"]",
@@ -64,22 +124,25 @@ window.BrainlyEnhancer = {
 		"div[class*=SubscriptionInfo__container]",
 		"div.truste_overlay",
 		"div.truste_box_overlay_inner",
-		"div.truste_box_overlay",
-		"div.sg-overlay.sg-overlay--dark"
+		"div.truste_box_overlay"
 	]
 }
+
+document.head.dataset.beLoaded = "true"
 
 // Remove Brainly Plus configuration
 Object.getOwnPropertyNames(localStorage).forEach(name => name.includes("funnel") && localStorage.removeItem(name))
 
-// Remove cookie message
-if(!document.cookie.includes("cookieconsent_dismissed")) document.cookie = "cookieconsent_dismissed=yes; max-age=31536000; path=/; samesite=Lax"
+localStorage.setItem("registration-toplayer/expires", String(Date.now() + 3.6e6))
+localStorage.setItem("registration-toplayer/cursor", "0")
+localStorage.setItem("spotlight-notifications/achievements", "\"dismissed\"")
 
-// Remove cookie message (for nosdevoirs)
-if(location.hostname === "nosdevoirs.fr" && !localStorage.getItem("truste.eu.cookie.notice_preferences")){
-	const date = new Date()
-	date.setFullYear(date.getFullYear() + 1)
+const date = new Date()
+date.setFullYear(date.getFullYear() + 1)
 
+document.cookie = `cookieconsent_dismissed=yes; max-age=${date.getTime()}; path=/; samesite=Lax`
+
+if(location.hostname === "nosdevoirs.fr"){
 	localStorage.setItem("notice_preferences", "2:")
 	localStorage.setItem("notice_gdpr_prefs", "0,1,2:")
 	localStorage.setItem("truste.eu.cookie.notice_preferences", `{"name":"truste.eu.cookie.notice_preferences","value":"2:","path":"/","expires":${date.getTime()}}`)
@@ -88,18 +151,94 @@ if(location.hostname === "nosdevoirs.fr" && !localStorage.getItem("truste.eu.coo
 	localStorage.setItem("truste.eu.cookie.cmapi_gtm_bl", `{"name":"truste.eu.cookie.cmapi_gtm_bl","value":"","path":"/","expires":${date.getTime()}}`)
 }
 
-// Watch page to remove ads
-(new MutationObserver((mutations, observer) => mutations.forEach(mutation => {
-	if(mutation.type === "attributes"){
-		if(mutation.attributeName === "style" && document.body.style.overflow) document.body.style.overflow = "auto"
-	}else BrainlyEnhancer.selectors.forEach(selector => {
-		const elements = document.querySelectorAll(selector)
-		if(elements.length) Array.from(elements).forEach(element => element.remove())
+async function watchForAds(){
+	const { selectors } = BrainlyEnhancer
+	if(!document.body) await new Promise(resolve => window.addEventListener("DOMContentLoaded", resolve));
+
+	(new MutationObserver((mutations, observer) => mutations.forEach(mutation => {
+		if(mutation.type === "attributes" && mutation.attributeName === "style"){
+			const style = document.body.style,
+			computedStyle = window.getComputedStyle(document.body)
+
+			if([style.overflowY, computedStyle.overflowY].includes("hidden")) style.overflowY = "auto"
+			if([style.position, computedStyle.position].includes("fixed")) style.position = "initial"
+			return
+		}
+
+		for(const selector of selectors){
+			const elements = document.querySelectorAll(selector)
+			if(elements.length) for(const element of Array.from(elements)) element.remove()
+		}
+	}))).observe(document.body, {
+		attributes: true,
+		childList: true,
+		subtree: true
 	})
-}))).observe(document.body, {
-	attributes: true,
-	childList: true,
-	subtree: true
+}
+
+async function appendDarkThemeIcon(){
+	const { waitElement, createElement, log, extensionId } = BrainlyEnhancer
+	const image = `chrome-extension://${extensionId}/src/images/moon.png`
+
+	let button
+	if(document.documentElement.id === "html"){ // Old design
+		const li = createElement("li", {
+			class: "menu-element",
+			children: [
+				button = createElement("a", {
+					"data-track": "brainly-enhancer-dark-theme-icon",
+					textContent: "Dark theme",
+					href: "javascript:void(0)"
+				})
+			]
+		})
+
+		document.head.appendChild(createElement("style", {
+			innerHTML: `.menu-element > a[data-track="brainly-enhancer-dark-theme-icon"]::before{background-image: url(${image});}`
+		}));
+
+		(await waitElement(".mint-header__right.mint-hide-for-mobile.menu-right > ul.menu-list")).firstElementChild.before(li)
+	}else{
+		const container = await waitElement("div[class*=HeaderController__childrenWrapper] > div > div:nth-of-type(2) > div"),
+		div = createElement("div", {
+			class: "sg-flex",
+			children: [
+				button = createElement("button", {
+					class: "sg-button sg-button--m sg-button--transparent sg-button--icon-only",
+					children: [
+						createElement("span", {
+							class: "sg-button__icon sg-button__icon--m",
+							children: [
+								createElement("div", {
+									class: "sg-icon sg-icon--adaptive sg-icon--x24",
+									children: [
+										createElement("img", {
+											class: "sg-icon__svg",
+											src: image
+										})
+									]
+								})
+							]
+						})
+					]
+				})
+			]
+		})
+
+		container.firstElementChild.classList.add("sg-flex--margin-left-s")
+		container.firstElementChild.before(div)
+	}
+
+	button.addEventListener("click", async e => {
+		ContentScript.executeAction({ action: "toggleDarkTheme" })
+		location.reload()
+	}, { once: true })
+}
+
+BrainlyEnhancer.waitElement("head[data-brainly-enhancer-id]").then(() => {
+	BrainlyEnhancer.extensionId = document.head.dataset.brainlyEnhancerId
+	document.head.removeAttribute("data-brainly-enhancer-id")
+	if(window.dataLayer && window.dataLayer[0].user.isLoggedIn) appendDarkThemeIcon()
 })
 
-document.body.setAttribute("data-be-loaded", "true")
+watchForAds()

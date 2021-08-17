@@ -1,7 +1,7 @@
 {
 	"author": "Alphka",
 	"name": "Brainly Enhancer",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"manifest_version": 2,
 	"background": {
 		"scripts": [
@@ -9,7 +9,8 @@
 		]
 	},
 	"browser_action": {
-		"default_title": "Brainly Enhancer"
+		"default_title": "Brainly Enhancer",
+		"default_popup": "src/views/popup/index.html"
 	},
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 	"permissions": [

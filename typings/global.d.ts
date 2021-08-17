@@ -1,3 +1,5 @@
+import ext from "webextension-polyfill"
+
 interface __default_config {
 	MARKET: string
 	inner: {
@@ -235,26 +237,149 @@ interface __default_config {
 	}
 }
 
+type dataLayer = [
+	{
+		user: {
+			isLoggedIn: boolean
+			nick?: string
+			id?: number
+			idWithMarket?: string
+			guestToken?: string
+			hasBeenLogged?: "L"
+			gender?: 1 | 2
+			entry?: 0 | 1
+			emailConfirmed?: boolean
+			getsPaywall?: boolean
+			answererLevel?: "STRONG" | "LURKER" 
+			numberOfAnswers?: number
+			accountType?: "student" | "parent"
+			isOnTrial?: boolean
+			isSubscriber?: boolean
+			gracePeriodActive?: boolean
+			lastAnswerDate?: null
+		}
+		event: "FillDataLayer"
+		moduloExperiments?: any[]
+	},
+	{
+		"gtm.start": number
+		event: "gtm.js"
+	},
+	...any[]
+]
+
+interface waitElementOptions {
+	/** Time in milliseconds until the Promise is rejected */
+	max?: number
+	/** Whether use `querySelector` or `querySelectorAll` */
+	multiple?: boolean
+}
+
+interface createElementOptions {
+	[attribute: string]: any
+	children?: HTMLElement[]
+}
+
 interface BrainlyEnhancer {
-	waitElement(selector: string, max?: number): Promise<HTMLElement>
-	createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, options?: Object): HTMLElementTagNameMap[K]
-	createElement<E extends Element = Element>(options: { tagName: string }): E
+	/** Returns a Promise that is resolved when the element is found */
+	waitElement<K extends keyof HTMLElementTagNameMap>(selector: K, multiple?: false, element?: HTMLElement | Element): Promise<HTMLElementTagNameMap[K]>
+	waitElement<K extends keyof HTMLElementTagNameMap>(selector: K, multiple?: true, element?: HTMLElement | Element): Promise<NodeListOf<HTMLElementTagNameMap[K]>>
+	waitElement(selector: string, multiple?: false, element?: HTMLElement | Element): Promise<ReturnType<typeof document.querySelector>>
+	waitElement(selector: string, multiple?: true, element?: HTMLElement | Element): Promise<ReturnType<typeof document.querySelectorAll>>
+
+	waitObject(object: string): Promise<any>
+
+	/** Creates an element using `document.createElement` */
+	createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, options?: createElementOptions): HTMLElementTagNameMap[K]
+	createElement<K extends keyof HTMLElementTagNameMap>(options: createElementOptions & {
+		tagName: K
+	}): HTMLElementTagNameMap[K]
+
+	/** Verifies inside Brainly if the user has a privilege */
 	checkPrivileges(...ids: number[]): boolean
+
+	/** Logs messages or errors into `console` */
+	log(...args: any[]): void
+
+	/** Requests the page and returns its response */
+	request(url: string, method?: string, data?: object, headers?: HeadersInit): Promise<any>
+
+	/**
+	 * Sends message to background.js
+	 * 
+	 * Requires `this`
+	*/
+	toBackground(data: any): Promise<any>
+
+	/** CSS selectors of elements to be removed */
 	selectors: string[]
+
+	/** Information of delete reasons */
+	moderationData?: any
+
+	extensionId?: string
 }
 
 declare global {
 	var __default_config: __default_config
+	var dataLayer: dataLayer
 	var BrainlyEnhancer: BrainlyEnhancer
-	var chrome: any
-	var dataLayer: any
+	var chrome: any // typeof ext
 
 	interface Window {
 		__default_config: __default_config
-		BrainlyEnhancer: BrainlyEnhancer;
-		chrome: any
-		dataLayer: any[]
+		dataLayer: dataLayer
+		BrainlyEnhancer: BrainlyEnhancer
+		chrome: any // typeof ext
+		Zadanium?: any
+		ContentScript: {
+			executeAction(data: any): Promise<any>
+		}
 	}
 }
 
-export {}
+type QuickButtonPreference = {
+	category: number
+	subCategory: number
+}
+
+type QuickButtonTypes = "task" | "response"
+
+type QuickButtonReason = {
+	id: number
+	text: string
+	abuse_category_id: number
+	subcategories: {
+		id: number
+		title: string
+		text: string
+	}[]
+}
+
+export interface QuickButtonPreferences {
+	/** Whether the extension database was requested */
+	requested: boolean
+	/** Response from extension's database */
+	response?: any
+	maxButtons: number
+	getLocalStorage(): string
+	hasPreferences(): boolean
+	getPreferences(type: QuickButtonTypes): Promise<QuickButtonPreference[]>
+	readonly defaultPreferences: Promise<{
+		[type in QuickButtonTypes]: QuickButtonPreference[]
+	}>
+}
+
+export class QuickButton {
+	id: number
+	index: number
+	type: QuickButtonTypes
+	container: HTMLDivElement
+	maxButtons: number
+	preferences: QuickButtonPreference[]
+	readonly button: Promise<HTMLButtonElement>
+	
+	constructor(type: QuickButtonTypes, id: string | number, container: HTMLDivElement)
+	getReasonDetails(id: number): Promise<QuickButtonReason>
+	createButton(preference: QuickButtonPreference, reason: QuickButtonReason): HTMLButtonElement
+}

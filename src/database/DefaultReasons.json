@@ -1,0 +1,22 @@
+{
+	"task": [
+		{
+			"category": 52,
+			"subCategory": 338
+		},
+		{
+			"category": 52,
+			"subCategory": 341
+		}
+	],
+	"response": [
+		{
+			"category": 50,
+			"subCategory": 339
+		},
+		{
+			"category": 50,
+			"subCategory": 342
+		}
+	]
+}
