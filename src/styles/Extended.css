@@ -97,6 +97,10 @@ select[name="extend-ticket-time"]{
 	display: block!important;
 }
 
+span.pseudolink.user-more-data{
+	display: none!important;
+}
+
 .tasksPagination{
 	margin-top: 10px!important;
 	float: unset!important;
