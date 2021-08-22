@@ -1,0 +1,46 @@
+{
+	"brainly.com.br": {
+		"lang": "pt",
+		"question": "tarefa"
+	},
+	"brainly.com": {
+		"lang": "us",
+		"question": "question"
+	},
+	"brainly.ph": {
+		"lang": "ph",
+		"question": "question"
+	},
+	"brainly.co.id": {
+		"lang": "id",
+		"question": "tugas"
+	},
+	"brainly.ro": {
+		"lang": "ro",
+		"question": "tema"
+	},
+	"eodev.com": {
+		"lang": "tr",
+		"question": "gorev"
+	},
+	"brainly.lat": {
+		"lang": "es",
+		"question": "tarea"
+	},
+	"znanija.com": {
+		"lang": "ru",
+		"question": "task"
+	},
+	"brainly.pl": {
+		"lang": "pl",
+		"question": "zadanie"
+	},
+	"brainly.in": {
+		"lang": "hi",
+		"question": "question"
+	},
+	"nosdevoirs.fr": {
+		"lang": "fr",
+		"question": "devoir"
+	}
+}

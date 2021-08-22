@@ -1,0 +1,10 @@
+{
+	"commands.commands": [
+		{
+			"alignment": "right",
+			"command": "workbench.action.terminal.focus",
+			"text": "$(terminal)",
+			"tooltip": "Focus to terminal"
+		}
+	]
+}

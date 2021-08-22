@@ -1,0 +1,114 @@
+:root{
+	--background-color: #292d33;
+	--text-color: #ccc;
+	--text-color-dark: #474747;
+	--text-color-light: #888888;
+	--background-color-light: rgb(73, 73, 73);
+	--background-input: rgb(216, 216, 216);
+	--background-input-active: cornflowerblue;
+	--input-border-color: rgb(144, 144, 144);
+}
+
+*{
+	margin: 0;
+	padding: 0;
+	border: none;
+	outline: none;
+	box-sizing: border-box;
+}
+
+body{
+	display: block;
+	margin: auto;
+	min-width: 320px;
+	max-width: 960px;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	font-family: Helvetica;
+}
+
+#main{
+	width: calc(100% - 30px);
+	display: block;
+	margin: 20px auto;
+}
+
+#main > header > h1{
+	text-align: center;
+	font-size: x-large;
+	margin: 25px auto;
+}
+
+#main > article > section > fieldset{
+	border: 1px solid var(--text-color);
+	border-radius: 20px;
+	padding: 0 10px 20px;
+}
+
+#main > article > section > fieldset > legend{
+	text-align: center;
+	margin-bottom: 10px;
+	padding: 0 20px 0;
+}
+
+#main > article > section > fieldset > div{
+	line-height: 1;
+	padding: 10px 0 10px 36px;
+}
+
+#main > article > section > fieldset > div > label{
+	display: block;
+	position: relative;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+#main > article > section > fieldset > div > label > span > input:active::before,
+#main > article > section > fieldset > div > label > span > input:checked::before{
+	background-color: var(--background-input-active);
+}
+
+#main > article > section > fieldset > div > label > span > input:hover::before,
+#main > article > section > fieldset > div > label > span > input:hover::before{
+	filter: opacity(0.7);
+}
+
+#main > article > section > fieldset > div > label > p{
+	word-break: break-word;
+	font-size: 1.3rem;
+	line-height: 1.5;
+	margin-left: 20px;
+}
+
+#main > article > section > fieldset > div > label > p:first-of-type{
+	color: var(--text-color-light);
+}
+
+#main > article > section > fieldset > div > label > p:nth-of-type(2){
+	font-size: 1rem;
+}
+
+span.be-input{
+	position: absolute;
+	left: -20px;
+}
+
+span.be-input input{
+	height: 0;
+	width: 0;
+}
+
+span.be-input input::before{
+	content: "";
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border-radius: 3px;
+	background-color: var(--background-input);
+	border: 1px solid var(--input-border-color);
+	cursor: pointer;
+}
+
+span.be-input input.be-input-transparent::before{
+	background-color: transparent;
+}

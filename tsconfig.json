@@ -1,35 +1,25 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
-		"checkJs": false,
 		"allowSyntheticDefaultImports": true,
-		"baseUrl": ".",
-		"module": "ESNext",
 		"downlevelIteration": true,
-		"lib": [
-			"ES5",
-			"ES6",
-			"ES2015.Collection",
-			"ES2015.Iterable",
-			"DOM",
-			"ES2017"
-		],
-		"moduleResolution": "Node",
+		"skipLibCheck": true,
+		"noImplicitAny": false,
 		"resolveJsonModule": true,
-		"target": "ES2017",
+		"moduleResolution": "Node",
+		"module": "ESNext",
+		"target": "ES5",
+		"lib": [
+			"ES2015.Promise",
+			"DOM"
+		],
 		"typeRoots": [
 			"node_modules/@types",
 			"./typings"
-		],
-		"outDir": "./build/"
+		]
 	},
 	"include": [
-		"src",
-		"typings"
-	],
-	"exclude": [
-		"node_modules",
-		"dist",
-		"build"
+		"./src/**/*.ts",
+		"./typings"
 	]
-}  
+}

@@ -1,0 +1,100 @@
+.brn-qpage-next-question-box.sg-label--peach-primary,
+.brn-qpage-next-answer-box.sg-label--peach-primary{
+	background-color: rgb(255, 183, 174);
+}
+
+.brn-answers-per-day__container--empty{
+	margin-bottom: -.5rem!important;
+}
+
+.marginBottom{
+	margin-bottom: 10px;
+}
+
+.menu-element > a[data-track="brainly-enhancer-dark-theme-icon"]{
+	width: 24px;
+	height: 24px;
+}
+
+.menu-element > a[data-track="brainly-enhancer-dark-theme-icon"]::before{
+	content: "";
+	display: inline-block;
+	background-size: 100%;
+	background-repeat: no-repeat;
+	width: 100%;
+	height: 100%;
+}
+
+#content-old div#main-right > div.beige-background > .me > .avatar img{
+	border-radius: 50%;
+	box-shadow: none;
+}
+
+#moderate-functions-panel .content-scroll:hover{
+	overflow: auto!important;
+}
+
+.brn-moderation-panel__list{
+	overflow-y: auto!important;
+	overflow-x: hidden!important;
+}
+
+.brn-moderation-panel{
+	margin-right: 15px;
+}
+
+.brn-moderation-panel__list{
+	height: auto;
+}
+
+.brn-messages__list,
+.brn-games-list{
+	padding-right: 10px!important;
+}
+
+#moderate-functions-panel .content-scroll .moderated a,
+select[name="filters"],
+select[name="extend-ticket-time"]{
+	padding-top: 0!important;
+}
+
+button,
+select,
+select:focus,
+input,
+input:focus,
+textarea,
+.sg-textarea{
+	outline: none!important;
+}
+
+.brn-chatbox__footer > .sg-horizontal-separator:first-child,
+#moderate-functions-panel .content-scroll .moderated br,
+#container.container_24 ~ div#footer,
+span.subject{
+	display: none!important;
+}
+
+.sg-button.sg-label--peach-primary:hover{
+	filter: brightness(1.5);
+}
+
+.solid-blue{
+	background-color: #739dca!important;
+}
+
+.solid-peach{
+	background-color: #ff6464!important;
+}
+
+.sg-button.solid-peach:hover{
+	background-color: #e74242!important;
+}
+
+.solid-peach-light{
+	background-color: #ffb0b0!important;
+}
+
+.sg-button--icon-only img[src]{
+	user-select: none;
+}
