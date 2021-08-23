@@ -13,8 +13,6 @@
     "permissions": [
         "tabs",
         "storage",
-        "webRequest",
-        "webRequestBlocking",
         "*://eodev.com/*",
         "*://znanija.com/*",
         "*://nosdevoirs.fr/*",
@@ -47,5 +45,5 @@
     ],
     "author": "Alphka",
     "name": "Brainly Enhancer",
-    "version": "1.0.3"
+    "version": "1.0.4"
 }

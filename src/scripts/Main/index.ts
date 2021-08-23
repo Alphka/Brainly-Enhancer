@@ -1,6 +1,7 @@
 import type { onMessageAction } from "../../../typings/global"
 import { waitObject } from "../../../src/helpers"
 import _BrainlyEnhancer from "../../../src/controllers/BrainlyEnhancer"
+import PreventConsolePreventer from "../../controllers/PreventConsolePreventer"
 import DarkTheme from "./DarkThemeIcon"
 
 class Main {
@@ -11,7 +12,7 @@ class Main {
 	constructor(){
 		window.BrainlyEnhancer = new _BrainlyEnhancer()
 
-		this.DarkTheme = new DarkTheme
+		this.DarkTheme = new DarkTheme()
 		this.selectors = [
 			`div.section--lnnYy.section--3Yobl`,
 			`div[class*=payments-section]`,
@@ -125,3 +126,4 @@ class Main {
 }
 
 new Main()
+new PreventConsolePreventer()

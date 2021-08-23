@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
-import * as defaultReasons from "../../public/database/DefaultReasons.json"
+import defaultReasons from "../../public/database/DefaultReasons.json"
 
 type QuickButtonsReasons = {
 	category: number
@@ -134,6 +134,11 @@ class BrainlyEnhancer {
 				reject(error)
 			}
 		})
+	}
+	ExtractId(type: "question", url: string){
+		const match = new URL(url).pathname.match(/(?<=\/)\d+(?<!\/)/)
+		if(!match) throw new Error(`Could not find ${type} ID: ${url}`)
+		return Number(match[0])
 	}
 }
 

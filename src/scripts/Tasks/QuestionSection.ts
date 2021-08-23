@@ -1,8 +1,8 @@
+import { DeleteQuestion } from "../../controllers/BrainlyRequest"
 import { waitElement } from "../../helpers"
 import type QuestionPage from "./QuestionPage"
 import type QuickButton from "./QuickButtons/QuickButton"
 import QuickButtonsForQuestions from "./QuickButtons/QuickButtonsForQuestions"
-import DeleteContent from "./Requests/DeleteContent"
 
 export default class QuestionSection {
 	main: QuestionPage
@@ -45,11 +45,11 @@ export default class QuestionSection {
 		try{
 			quickButton.RenderSpinner(target)
 
-			const result = await new DeleteContent("question", {
+			const result = await DeleteQuestion({
 				model_id: this.main.data.id,
 				reason: quickButton.reasonText,
 				reason_id: quickButton.reasonId
-			}).promise
+			})
 
 			if(!result.success) throw result.message || "Algo deu errado"
 

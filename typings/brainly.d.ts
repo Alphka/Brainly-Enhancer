@@ -72,10 +72,7 @@ export interface __default_config {
 				category: number
 				clientType: number
 				modActionsCount: number
-				avatars: {
-					64: string
-					100: string
-				}
+				avatars: Avatar
 				avatar: string
 				entry: null
 				isModerator: boolean
@@ -309,7 +306,30 @@ export interface jsData {
 	}
 }
 
-type Settings = {
+type Attachment = {
+	full: string
+	thumbnail: string
+	type: string
+	size: number
+	hash: string
+	id: number
+	extension: string
+}
+
+type Solved = {
+	id: number
+	nick: string
+	avatar: string
+}
+
+type Presence = {
+	observing: any[]
+	answering: any[]
+	solved: Solved[]
+	tickets: any[]
+}
+
+interface MainViewSettings {
 	canMarkAsBest: boolean
 	canEdit: boolean
 	isToCorrect: boolean
@@ -321,20 +341,69 @@ type Settings = {
 	isConfirmed: boolean
 	isExcellent: boolean
 }
-  
+
+interface MainViewSettings {
+	can_comment: boolean
+	can_edit: boolean
+	can_mark_abuse: boolean
+	can_moderate: boolean
+	is_confirmed: boolean
+	is_deleted: boolean
+	is_marked_abuse: boolean
+}
+
+interface MainViewAnswerSettings extends MainViewSettings {
+	can_mark_as_best: boolean
+	is_excellent: boolean
+	is_to_correct: boolean
+}
+
+interface MainViewQuestionSettings extends MainViewSettings {
+	can_follow: boolean
+	can_unfollow: boolean
+	is_answer_button: boolean
+	is_closed: boolean
+	is_following: boolean
+}
+
+type Approved = {
+	date?: string
+	approver?: Approver
+}
+
+type Avatar = {
+	64: string
+	100: string
+}
+
+type Ranks = {
+	color: string
+	names: string[]
+	count: number
+}
+
+type Stats = {
+	questions: number
+	answers: number
+	comments: number
+}
+
+type Points = {
+	ptsForTask: number
+	ptsForResp: number
+	ptsForBest: number
+}
+
 type ApprovedData = {
 	date?: string
 	approver?: {
-	  avatars: {
-		64?: string
-		100?: string
-	  };
-	  contentApprovedCount: number
-	  gender: number
-	  grade: number
-	  id: number
-	  nickname: string
-	  points: number
+		avatars: Avatar
+		contentApprovedCount: number
+		gender: number
+		grade: number
+		id: number
+		nickname: string
+		points: number
 	}
 }
   
@@ -366,7 +435,7 @@ export type AnswerDataType = {
 	source: string
 	clientType: string
 	best: boolean
-	settings: Settings
+	settings: MainViewSettings
 	attachments: any[]
 	approved: Approved
 	comments: Comments
@@ -401,4 +470,89 @@ export type QuestionDataType = {
 
 export interface myData {
 	[property: string]: any
+}
+
+export interface QuestionMainViewAnswerData {
+	id: number
+	user_id: number
+	task_id: number
+	points: number
+	created: string
+	content: string
+	mark: number
+	marks_count: number
+	thanks: number
+	user_best_rank_id: number
+	source: string
+	client_type: string
+	best: boolean
+	settings: MainViewAnswerSettings
+	attachments: Attachment[]
+	approved: Approved
+	comments: Comments
+}
+
+export interface QuestionMainViewUserData {
+	id: number
+	nick: string
+	gender: number
+	is_deleted: boolean
+	stats: Stats
+	avatars: Avatar
+	avatar: Avatar
+	ranks: Ranks
+	ranks_ids: number[]
+}
+
+export interface QuestionMainViewQuestionData {
+	id: number
+	subject_id: number
+	user_id: number
+	grade_id: number
+	points: Points
+	content: string
+	created: string
+	responses: number
+	tickets: number
+	first_resp: string
+	the_best_resp_id: any
+	source: string
+	client_type: string
+	user_category: number
+	settings: MainViewQuestionSettings
+	attachments: Attachment[]
+	comments: Comments
+}
+
+export interface QuestionMainViewData {
+	task: QuestionMainViewQuestionData
+	responses: QuestionMainViewAnswerData[]
+	presence: Presence
+}
+
+export interface GenericResponseBrainly {
+	success: boolean
+	message: string | null
+	code?: number
+	exception_type?: number
+	data?: any
+	users_data?: any
+	validated: boolean
+	impl: string
+	protocol: "28"
+	schema: string
+}
+
+export type BrainlyActionData = {
+	model_id: number
+	reason_id?: number
+	reason?: string
+	model_type_id?: number
+	/** Default: `false` */
+	give_warning?: boolean
+	/** Default: `true` */
+	take_points?: boolean
+	/** Default: `false` */
+	return_points?: boolean
+	taskId?: number
 }

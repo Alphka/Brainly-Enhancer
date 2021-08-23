@@ -228,6 +228,7 @@ table.brn-data-table tr.brn-data-table__row{
 .sg-counter--with-icon,
 .sg-media--clickable.sg-media--focused,
 .sg-box--blue,
+.sg-button--solid-blue,
 .sg-textarea,
 .sg-dropdown:hover,
 .sg-textarea:hover,
@@ -243,7 +244,6 @@ table.brn-data-table tr.brn-data-table__row{
 .sg-button--solid-light:focus:not([disabled]),
 .sg-button--solid-light:active:not([disabled]),
 .sg-button--solid-light:active:focus:not([disabled]),
-.sg-button--solid-blue,
 .brn-navigation-item--active,
 .brn-navigation-item:hover,
 .brn-challenge-item__overlay,
@@ -266,7 +266,14 @@ table.brn-data-table tr.brn-data-table__row{
 #content-old .editProfileContent .editProfileList > li.choosen > a,
 #moderation-all .content .loader:hover,
 #moderate-functions-panel .covering-text,
-[class*=HeaderController]{
+.sg-header__container,
+.mint-tabs__tab--active,
+#html .mint .mint-header,
+#html .mint #tabs-doj #main_menu > li.active,
+#html .mint #footer,
+header[class^="HeaderController"],
+div[class^=HeaderController__subnav],
+div[class^=HeaderController__innerwrap]{
 	background-color: var(--background-color-blue)!important;
 }
 
@@ -423,25 +430,38 @@ div[class*=Tooltip-module__brn-tooltip-box] .sg-bubble{
 	background-color: var(--background-color-green-light)!important;
 }
 
-.brn-qpage-next-answer-box-content__section img,
 .brn-qpage-next-question-box-content__secondary img,
 .sg-button--transparent.sg-button--icon-only .sg-icon--adaptive > img.sg-icon__svg,
 .menu-element > a[data-track="brainly-enhancer-dark-theme-icon"]::before,
 .alert i.icon-info-sign,
 #moderation-all button.reset.btn > i,
 .icon.icon-file,
-.GameBoxProgressBar-module__container--3ukwx{
+.GameBoxProgressBar-module__container--3ukwx,
+#TexFormula1,
+.latex-formula{
 	filter: invert(1);
 }
 
 .sg-text.sg-text--break-words.sg-text--white a,
 .brn-qpage-next-answer-box-content__section a,
 .brn-qpage-next-question-box-content__secondary a,
+.sg-menu-list__link,
+.sg-text--link.sg-text--blue,
+.sg-text--link.sg-text--blue-dark,
+.sg-link:not([class*="gray"]):not([class*="light"]):not([class*="mustard"]):not([class*="peach"]),
 #html .mint .mod-profile-panel a,
 #html .mint .mod-profile-panel .pseudolink,
 #html .mint .mod-profile-panel .orange,
 #html .mint .mod-profile-panel .onlylink,
-#moderate-task-toplayer .toplayer-body .contents .boxxy .body .nick{
+#moderate-task-toplayer .toplayer-body .contents .boxxy .body .nick,
+#html .mint #profile #main-left .personal_info .helped_subjects > li,
+#html .mint #profile #main-left .personal_info .helped_subjects > li .bold,
+#html .mint #profile #main-left .personal_info .helped_subjects > li .bold a,
+#html .mint #profile #main-left .personal_info .helped_subjects > li .green,
+#content-old .editProfileContent .profileListEdit,
+#main-panel .menu-right .menu-element#panel-notifications .notifications-container .notifications li.notification .main .content .nick,
+#main-panel .menu-right .menu-element#panel-notifications .notifications-container .notification-wrapper .main .content .nick,
+#moderate-task-toplayer a:not(.btn-danger){
 	color: var(--link-color-light)!important;
 }
 
@@ -587,10 +607,6 @@ div.sg-textarea:active:hover{
 ::-webkit-scrollbar-thumb{
 	background-color: var(--background-color-blue-light);
 	border-radius: 14px;
-}
-
-::-webkit-scrollbar-thumb:active{
-	background-color: var(--background-color);
 }
 
 ::-webkit-scrollbar-track{

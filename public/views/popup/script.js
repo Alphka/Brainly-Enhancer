@@ -1,11 +1,7 @@
-import { name as extensionName } from "../../../package.json"
-
-function firstUppercase(...strings){
-	return strings.map(string => string[0].toUpperCase() + string.substr(1))
-}
+import manifestInfo from "../../../build/manifest.json"
 
 window.addEventListener("DOMContentLoaded", async () => {
-	document.title = document.querySelector("#main > header > h1").textContent = firstUppercase(...extensionName.split("-")).join(" ")
+	document.title = document.querySelector("#main > header > h1").textContent = manifestInfo?.name || "DEV"
 	
 	const darkThemeInput = document.querySelector("input[name=darkTheme]")
 	const expandLayoutInput = document.querySelector("input[name=expandLayout]")

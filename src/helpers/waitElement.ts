@@ -1,7 +1,7 @@
 type WaitElementOptions = {
 	multiple?: boolean
 	/** Where to search, default: `document` */
-	element?: HTMLElement
+	element?: HTMLElementTagNameMap[keyof HTMLElementTagNameMap]
 }
 
 function waitElement<T extends keyof HTMLElementTagNameMap>(

@@ -15,8 +15,6 @@ const manifest = {
 	permissions: [
 		"tabs",
 		"storage",
-		"webRequest",
-		"webRequestBlocking",
 		"*://eodev.com/*",
 		"*://znanija.com/*",
 		"*://nosdevoirs.fr/*",
@@ -63,13 +61,18 @@ export default async () => {
 		version
 	} = JSON.parse(fs.readFileSync(path.join(rootPath, "package.json")))
 
+	let manifestPath, 
+	manifestName = manifest.browser_action.default_title = firstUppercase(...name.split("-")).join(" ")
+
+	if(process.env.NODE_ENV === "development"){
+		manifestPath = path.join(rootPath, "dist", "manifest.json")
+		manifestName += " (DEV)"
+	}else manifestPath = path.join(rootPath, "build", "manifest.json")
+
 	manifest.author = author
-	manifest.name = manifest.browser_action.default_title = firstUppercase(...name.split("-")).join(" ")
+	manifest.name = manifestName
 	manifest.description = description
 	manifest.version = version
 
-	fs.appendFileSync(
-		path.join(rootPath, "build", "manifest.json"),
-		JSON.stringify(manifest, null, 4).replace(/ {4}/, "\t") + "\n", "utf8"
-	)
+	fs.appendFileSync(manifestPath,	JSON.stringify(manifest, null, 4).replace(/ {4}/, "\t") + "\n", "utf8")
 }

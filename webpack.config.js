@@ -26,7 +26,7 @@ module.exports = {
 	},
 	output: {
 		filename: "[name].js",
-		path: path.resolve(__dirname, "build")
+		path: path.resolve(__dirname, process.env.NODE_ENV === "development" ? "dist" : "build")
 	},
 	module: {
 		rules: [
@@ -45,9 +45,6 @@ module.exports = {
 		fallback: {
 			path: require.resolve("path-browserify")
 		}
-	},
-	devServer: {
-		contentBase: path.resolve(__dirname, "build")
 	},
 	performance: {
 		hints: false

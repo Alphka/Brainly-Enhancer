@@ -3,25 +3,13 @@ import { onMessageInformation, StorageTypes } from "../../typings/global"
 import { IsBrainly, isURL } from "../helpers"
 
 class Background {
-	blockedDomains: RegExp
-	requestFilter: ext.WebRequest.RequestFilter
-
 	constructor(){
-		this.blockedDomains = /mc\.yandex\.ru|hotjar\.com|google(-analytics|tagmanager|adservices|tagservices)\.com|kissmetrics\.com|doubleclick\.net|ravenjs\.com|browser\.sentry-cdn\.com|datadome\.co/i
-		this.requestFilter = {
-			urls: ["<all_urls>"]
-		}
-
 		this.BindListeners()
 	}
 	BindListeners(){
 		ext.tabs.onUpdated.addListener(this.InjectContentScript.bind(this))
 		ext.runtime.onMessage.addListener(this.MessageRequestHandler.bind(this))
 		ext.runtime.onMessageExternal.addListener(this.MessageRequestHandler.bind(this))
-
-		ext.webRequest?.onBeforeRequest.addListener(({ url, initiator }) => ({
-			cancel: Boolean(initiator && IsBrainly(initiator) && this.blockedDomains.test(url))
-		}), this.requestFilter, ["blocking"])
 	}
 	async InjectContentScript(
 		tabId: number,
@@ -40,12 +28,7 @@ class Background {
 
 			if(!permission) return
 
-			if(IsBrainly(tab.url) && !(await this.TabHasContentScript(tabId))){
-				ext.tabs.insertCSS(tabId, {
-					file: "styles/Main.css",
-					runAt: "document_start"
-				}).catch(console.error)
-	
+			if(IsBrainly(tab.url) && !(await this.TabHasContentScript(tabId))){	
 				ext.tabs.executeScript(tabId, {
 					file: "contentScript.js",
 					runAt: "document_start"

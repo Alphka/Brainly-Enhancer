@@ -10,7 +10,7 @@
 		"module": "ESNext",
 		"target": "ES5",
 		"lib": [
-			"ES2015.Promise",
+			"ESNext",
 			"DOM"
 		],
 		"typeRoots": [

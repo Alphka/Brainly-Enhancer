@@ -24,8 +24,8 @@ class ContentScript {
 		window.addEventListener("getExtensionData", this.SendExtensionData.bind(this))
 
 		this.AwaitHead().then(() => {
-			this.InsertStyles()
-			this.InsertScript("Main").addEventListener("load", this.InsertScripts.bind(this))
+			this.InjectStyles()
+			this.InsertScript("Main").addEventListener("load", this.InsertElements.bind(this))
 		})		
 	}
 	async MessageHandler(message: onMessageInformation, sender: ext.Runtime.MessageSender){
@@ -46,16 +46,22 @@ class ContentScript {
 			document.addEventListener("DOMSubtreeModified", listener)
 		})
 	}
-	InsertScripts(){
-		const hostname: BrainlyHostnames = location.hostname as BrainlyHostnames
+	InsertElements(){
+		this.InsertStyle("Main")
+
+		const hostname = <BrainlyHostnames>location.hostname
 		
-		if(this.TestPathname("tasks", "archive_mod")) this.InsertScript("ModerateAll")
+		if(this.TestPathname("tasks", "archive_mod")){
+			this.InsertScript("ModerateAll")
+			this.InsertStyle("ModerateAll")
+		}
+
 		if(this.TestPathname("messages")) this.InsertScript("Messages")
 		if(this.TestPathname(brainlyDetails[hostname].question)) this.InsertScript("Tasks")
-	}
-	InsertStyles(){
-		if(this.TestPathname("tasks", "archive_mod")) this.InsertStyle("ModerateAll")
 
+		this.InsertScript("images/icons.js", false)
+	}
+	InjectStyles(){
 		chrome.storage.local.get(["darkTheme", "expandLayout"], values => {
 			const { darkTheme, expandLayout } = values
 			if(darkTheme) ext.runtime.sendMessage({ action: "insertDarkTheme" })
@@ -66,11 +72,13 @@ class ContentScript {
 		const pathname = location.pathname.substr(1).split("/")
 		return paths.toString() === pathname.slice(0, paths.length).toString()
 	}
-	InsertScript(file: string){
-		return document.head.appendChild(createElement("script", {
-			src: ext.runtime.getURL(`scripts/${file}/index.js`),
+	InsertScript(file: string, defaultFolder = true){
+		const element = createElement("script", {
+			src: ext.runtime.getURL(defaultFolder ? `scripts/${file}/index.js` : file),
 			type: "text/javascript"
-		}))
+		})
+
+		return document.head.firstElementChild.before(element), element
 	}
 	InsertStyle(file: string){
 		const element = createElement("link", {
@@ -79,9 +87,9 @@ class ContentScript {
 			type: "text/css"
 		})
 
-		return document.head.prepend(element), element
+		return document.head.lastElementChild.after(element), element
 	}
-	SendExtensionData(event){
+	SendExtensionData(){
 		window.postMessage({
 			action: "setExtensionData",
 			data: BrainlyEnhancer.extension,
