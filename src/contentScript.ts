@@ -1,7 +1,7 @@
 import ext from "webextension-polyfill"
 import * as brainlyDetails from "../public/database/BrainlyDetails.json"
 import _BrainlyEnhancer from "./controllers/BrainlyEnhancer"
-import { createElement } from "./helpers"
+import { createElement, waitElement } from "./helpers"
 import type { BrainlyHostnames } from "../typings/brainly"
 import type { onMessageInformation } from "../typings/global"
 
@@ -47,8 +47,6 @@ class ContentScript {
 		})
 	}
 	InsertElements(){
-		this.InsertStyle("Main")
-
 		const hostname = <BrainlyHostnames>location.hostname
 		
 		if(this.TestPathname("tasks", "archive_mod")){
@@ -59,7 +57,31 @@ class ContentScript {
 		if(this.TestPathname("messages")) this.InsertScript("Messages")
 		if(this.TestPathname(brainlyDetails[hostname].question)) this.InsertScript("Tasks")
 
-		this.InsertScript("images/icons.js", false)
+		waitElement("html#html", {
+			expires: 9000,
+			noError: true
+		}).then(e => {
+			if(e.isError) return
+			this.InsertStyle("OldLayoutFixes")
+			this.InsertStyle("StyleGuide")
+		})
+
+		waitElement("body.mint", {
+			expires: 9000,
+			noError: true
+		}).then(e => !e.isError && this.InsertScript("images/icons.js", false))
+
+		const MainStyle = this.InsertStyle("Main")
+		
+		MainStyle.addEventListener("load", () => {
+			waitElement("link[href*=style-guide]", {
+				expires: 10000,
+				noError: true
+			}).then(style => {
+				if(style.isError) return
+				style.after(MainStyle)
+			})
+		})
 	}
 	InjectStyles(){
 		chrome.storage.local.get(["darkTheme", "expandLayout"], values => {
@@ -78,16 +100,31 @@ class ContentScript {
 			type: "text/javascript"
 		})
 
-		return document.head.firstElementChild.before(element), element
+		document.head.firstElementChild
+			? document.head.firstElementChild.before(element)
+			: document.head.appendChild(element)
+
+		return element
 	}
-	InsertStyle(file: string){
+	InsertStyle(file: string, external = false){
 		const element = createElement("link", {
-			href: ext.runtime.getURL(`styles/${file}.css`),
+			href: external ? file : ext.runtime.getURL(`styles/${file}.css`),
 			rel: "stylesheet",
-			type: "text/css"
+			type: "text/css",
+			"data-added-by-extension": "true"
 		})
 
-		return document.head.lastElementChild.after(element), element
+		const mainStyle = document.querySelector(`link[data-added-by-extension="true"][href*=Main]`)
+		if(mainStyle){
+			mainStyle.before(element)
+			return element
+		}
+
+		document.head.lastElementChild
+			? document.head.lastElementChild.after(element)
+			: document.head.appendChild(element)
+			
+		return element
 	}
 	SendExtensionData(){
 		window.postMessage({

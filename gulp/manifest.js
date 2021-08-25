@@ -1,7 +1,9 @@
+// @ts-check
+
 import fs from "fs"
 import path from "path"
 
-const manifest = {
+const manifestInfo = {
 	manifest_version: 2,
 	background: {
 		scripts: [
@@ -51,7 +53,7 @@ function firstUppercase(...strings){
 	return strings.map(string => string[0].toUpperCase() + string.substr(1))
 }
 
-export default async () => {
+export async function manifest(){
 	const rootPath = path.resolve(__dirname, "..")
 
 	const {
@@ -59,20 +61,20 @@ export default async () => {
 		name,
 		description,
 		version
-	} = JSON.parse(fs.readFileSync(path.join(rootPath, "package.json")))
+	} = JSON.parse(fs.readFileSync(path.join(rootPath, "package.json"), "utf8"))
 
-	let manifestPath, 
-	manifestName = manifest.browser_action.default_title = firstUppercase(...name.split("-")).join(" ")
+	let manifestPath = path.join(rootPath, "build", "manifest.json"),
+	manifestName = manifestInfo.browser_action.default_title = firstUppercase(...name.split("-")).join(" ")
 
 	if(process.env.NODE_ENV === "development"){
 		manifestPath = path.join(rootPath, "dist", "manifest.json")
 		manifestName += " (DEV)"
-	}else manifestPath = path.join(rootPath, "build", "manifest.json")
+	}
 
-	manifest.author = author
-	manifest.name = manifestName
-	manifest.description = description
-	manifest.version = version
+	manifestInfo.author = author
+	manifestInfo.name = manifestName
+	manifestInfo.description = description
+	manifestInfo.version = version
 
-	fs.appendFileSync(manifestPath,	JSON.stringify(manifest, null, 4).replace(/ {4}/, "\t") + "\n", "utf8")
+	fs.appendFileSync(manifestPath,	JSON.stringify(manifestInfo, null, 4).replace(/ {4}/, "\t") + "\n", "utf8")
 }

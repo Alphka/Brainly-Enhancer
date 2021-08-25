@@ -1,5 +1,6 @@
 import type { AnswerDataType, AnswerDetails } from "../../../typings/brainly"
 import { DeleteAnswer } from "../../controllers/BrainlyRequest"
+import { waitObject } from "../../helpers"
 import type QuestionPage from "./QuestionPage"
 import type QuickButton from "./QuickButtons/QuickButton"
 import QuickButtonsForAnswers from "./QuickButtons/QuickButtonsForAnswers"
@@ -19,10 +20,10 @@ export default class AnswerSection {
 	constructor(main: QuestionPage, data: AnswerDataType){
 		this.main = main
 		this.data = data
-
-		this.extraDetails = jsData.question.answers.find(answer => answer.databaseId === data.id)
 	}
 	async Init(){
+		await waitObject("window.jsData")
+		this.extraDetails = jsData.question.answers.find(answer => answer.databaseId === this.data.id)
 		this.FindModerationContainer()
 		this.FindModerateButton()
 

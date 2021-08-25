@@ -1,7 +1,7 @@
 import type { TopLayerCallback } from "."
 import { waitElement } from "../../helpers"
 
-export default class TopPlayer {
+export default class Toplayer {
 	toplayer: HTMLDivElement
 	callback: typeof TopLayerCallback
 	opened: boolean

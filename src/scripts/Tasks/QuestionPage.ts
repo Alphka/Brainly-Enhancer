@@ -1,4 +1,4 @@
-import { waitElement, waitObject } from "../../helpers"
+import { waitElement } from "../../helpers"
 import type { QuestionDataType } from "../../../typings/brainly"
 import AnswerSection from "./AnswerSection"
 import QuestionSection from "./QuestionSection"
@@ -25,8 +25,8 @@ export default class QuestionPage {
 	async Init(){
 		await this.FindQuestionContainer()
 		this.SetQuestionData()
-		this.ObserveForElements()
 		this.InitSections()
+		this.ObserveForElements()
 	}
 	async FindQuestionContainer(){
 		this.questionContainer = await waitElement(".js-main-question")
@@ -39,17 +39,20 @@ export default class QuestionPage {
 			console.error(error)
 		}
 	}	
-	async InitSections(){
-		await waitObject("window.jsData")
-		if(BrainlyEnhancer.checkPrivileges(1)) this.questionSection = new QuestionSection(this)
+	InitSections(){
+		if(BrainlyEnhancer.checkPrivileges(1)){
+			this.questionSection = new QuestionSection(this)
+			this.questionSection.Init()
+		}
+
 		this.RenderAnswersSections()
 	}
 	async RenderAnswersSections(){
 		if(!this.data.responses.length) return
 
-		this.answersSections.containers = <HTMLDivElement[]>(Array.from(await waitElement(".js-question-answers > div > div[class*=empty]", {
+		this.answersSections.containers = Array.from(await waitElement(".js-question-answers > div > div[class*=empty]", {
 			multiple: true
-		})))
+		})) as HTMLDivElement[]
 	
 		this.data.responses.forEach((data, index) => {
 			const answersSections = new AnswerSection(this, data)
@@ -83,5 +86,7 @@ export default class QuestionPage {
 			childList: true,
 			subtree: true
 		})
+
+		waitElement(".js-react-answers").then(() => this.answersSections.all.forEach(answerSection => answerSection.Init()))
 	}
 }

@@ -4,7 +4,7 @@
 }
 
 .brn-answers-per-day__container--empty{
-	margin-bottom: -.5rem!important;
+	margin-bottom: -0.5rem!important;
 }
 
 .marginBottom{
@@ -17,17 +17,17 @@
 	margin: 0;
 	width: 24px;
 	height: 24px;
-}
 
-.menu-element > a[data-track="brainly-enhancer-dark-theme-icon"]::before{
-	content: "";
-	display: block;
-	background-size: 100%;
-	background-repeat: no-repeat;
-	position: relative;
-	top: 5px;
-	width: 20px;
-	height: 100%;
+	&::before{
+		content: "";
+		display: block;
+		background-size: 100%;
+		background-repeat: no-repeat;
+		position: relative;
+		top: 5px;
+		width: 20px;
+		height: 100%;
+	}
 }
 
 #content-old div#main-right > div.beige-background > .me > .avatar img{
@@ -57,17 +57,29 @@
 	padding-right: 10px!important;
 }
 
-#moderate-functions-panel .content-scroll .moderated a,
-select[name="filters"],
-select[name="extend-ticket-time"]{
+#moderate-functions-panel .content-scroll .moderated a{
 	padding-top: 0!important;
 }
 
-button,
+select{
+	&[name="filters"], &[name="extend-ticket-time"]{
+		padding-top: 0!important;
+	}
+}
+
+button{
+	outline: none!important;
+}
+
 select,
-select:focus,
-input,
-input:focus,
+input{
+	outline: none!important;
+
+	&:focus{
+		outline: none!important;
+	}
+}
+
 textarea,
 .sg-textarea{
 	outline: none!important;
@@ -103,3 +115,41 @@ span.subject{
 .sg-button--icon-only img[src]{
 	user-select: none;
 }
+
+@media (min-width: 768px) {
+	div[class^="NestedUserPanelBubble"]{
+		min-width: 460px;
+	}
+}
+
+.sg-spinner-container {
+	&--spaced {
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+}
+
+.sg-text--disabled {
+	cursor: default;
+	pointer-events: none;
+
+	.sg-icon {
+		opacity: 0.5;
+	}
+}
+
+body.mint {
+	#main-panel .menu-element.current.profile .profile-content .top {
+		width: 93%;
+
+		> .left {
+			width: 29%;
+		}
+
+		> .right {
+			width: 67%;
+		}
+	}
+}
+
+@import "./Extension/MassDelete";

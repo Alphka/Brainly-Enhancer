@@ -532,7 +532,7 @@ export interface QuestionMainViewData {
 
 export interface GenericResponseBrainly {
 	success: boolean
-	message: string | null
+	message?: string
 	code?: number
 	exception_type?: number
 	data?: any
@@ -555,4 +555,104 @@ export type BrainlyActionData = {
 	/** Default: `false` */
 	return_points?: boolean
 	taskId?: number
+}
+
+interface GetUserByIdData {
+	avatar: {
+		medium: string
+		small: string
+	} | null
+	avatar_id: number | null
+	category: number
+	client_type: number
+	current_best_answers_count: number
+	gender: number
+	id: number
+	is_deleted: boolean
+	nick: string
+	points: number
+	primary_rank_id: number
+	ranks_ids: number[]
+	registration_date: string
+}
+
+interface GetAnswersByIdResponse extends GenericResponseBrainly{
+	data: {
+		id: number
+		author_id: number
+		question_id: number
+		content: string
+		points: number
+		thanks_count: number
+		rating: number
+		rates_count: number
+		is_confirmed: boolean
+		is_excellent: boolean
+		is_best: boolean
+		can_comment: boolean
+		attachment_ids: any[],
+		created: string
+	}[]
+	pagination: {
+		first: string
+		prev?: string
+		self: string
+		next?: string
+		last: string
+	}
+}
+
+interface GraphQLAuthor {
+	avatar: {
+		thumbnailUrl: string
+		__typename: "Attachment"
+	}
+	databaseId: number
+	nick: string
+	__typename: "User"
+}
+
+interface GetQuestionsByIdResponse extends GenericResponseBrainly {
+	data: {
+		userById: {
+			questions: {
+				edges: {
+					node: {
+						answers: {
+							nodes: {
+								author: GraphQLAuthor
+								__typename: "Answer"
+							}[]
+							__typename: "AnswerConnection"
+						}
+						attachments: any[]
+						author: GraphQLAuthor
+						canBeAnswered: boolean
+						content: string
+						created: string
+						databaseId: number
+						grade: {
+							name: string
+							slug: string
+							__typename: "Grade"
+						}
+						subject: {
+							name: string
+							slug: string
+							__typename: "Subject"
+						}
+						__typename: "Question"
+					}
+					__typename: "QuestionEdge"
+				}[]
+				pageInfo: {
+					endCursor: string
+					hasNextPage: boolean
+					__typename: "PageInfo"
+				}
+				__typename: "UserQuestionsConnection"				
+			}
+			__typename: "User"
+		}
+	}
 }

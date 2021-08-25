@@ -1,0 +1,23 @@
+#MassDeleteUsersPanel{
+	width: 215px;
+	min-height: 177px;
+	max-height: 600px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+#MassDeleteOptions{
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	position: relative;
+	top: 10px;
+	height: 100%;
+
+	> input[name=MassDeleteOption]{
+		margin: 0 4px 0 10px;
+		padding: 0 10px;
+		position: relative;
+		top: 2px;
+	}
+}

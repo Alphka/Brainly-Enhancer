@@ -70,6 +70,7 @@ declare global {
 		__default_config: __default_config
 		dataLayer: dataLayer
 		jsData: jsData
+		siteLocale: string
 	}
 }
 

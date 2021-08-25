@@ -1,7 +1,7 @@
 import fs from "fs"
 import path from "path"
 
-export default async () => {
+export async function clean(){
 	const folder = process.env.NODE_ENV === "development" ? "dist" : "build"
 	const buildPath = path.resolve(__dirname, `../${folder}`)
 

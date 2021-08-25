@@ -1,4 +1,4 @@
-import { DefaultReasons as _DefaultReasons } from "../../helpers"
+import { DefaultReasons as _DefaultReasons, waitObject } from "../../helpers"
 import QuestionPage from "./QuestionPage"
 
 function ListenToToplayer(){
@@ -25,7 +25,9 @@ function ListenToToplayer(){
 	})
 }
 
-if(BrainlyEnhancer.checkPrivileges(102)){
-	new QuestionPage()
-	ListenToToplayer()
-}
+waitObject("window.__default_config && window.dataLayer").then(() => {
+	if(BrainlyEnhancer.checkPrivileges(102)){
+		new QuestionPage()
+		ListenToToplayer()
+	}
+})

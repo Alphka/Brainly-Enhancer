@@ -230,16 +230,7 @@ div.js-react-aside-content > div.sg-content-box.sg-content-box--spaced-bottom-la
 		grid-template-columns: 66% 32%!important;
 	}
 	.js-page-wrapper > .sg-layout > .sg-layout__container{
-		max-width: unset!important;
-		padding: 0!important;
-		margin: 0!important;
-	}
-}
-
-@media (min-width: 768px){
-	.js-page-wrapper > .sg-layout > .sg-layout__container{
-		max-width: unset!important;
-		margin: 0!important;
+		padding: 0;
 	}
 }
 

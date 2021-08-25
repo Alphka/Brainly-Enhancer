@@ -12,7 +12,7 @@ function addFolderToEntries(entries){
 module.exports = {
 	mode: "production",
 	entry: {
-		...addFolderToEntries(WebpackWatchedGlobEntries.getEntries(["./src/scripts/**/index.ts"], {
+		...addFolderToEntries(WebpackWatchedGlobEntries.getEntries(["./src/scripts/*/index.ts"], {
 			ignore: [
 				"./src/helpers/*",
 				"./src/controllers/*"

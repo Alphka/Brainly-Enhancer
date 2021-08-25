@@ -1,8 +1,21 @@
 import { waitElement, DefaultReasons as _DefaultReasons } from "../../helpers"
-import TopPlayer from "./Toplayer"
+import Toplayer from "./Toplayer"
+
+let isCloseListener = false
 
 async function TopLayerCallback(isOpened: boolean){
 	if(!isOpened) return
+
+	if(!isCloseListener){
+		isCloseListener = true
+
+		window.addEventListener("keyup", e => {
+			if(e.key === "Escape"){
+				const closeButton = document.querySelector("#toplayer .contener.mod.moderation .close") as HTMLDivElement
+				if(closeButton) closeButton.click()
+			}
+		})
+	}
 
 	const deleteButtons = <NodeListOf<HTMLButtonElement>>(await waitElement(".btn.btn-danger.delete", {
 		multiple: true
@@ -14,6 +27,6 @@ async function TopLayerCallback(isOpened: boolean){
 	})
 }
 
-new TopPlayer(TopLayerCallback)
+new Toplayer(TopLayerCallback)
 
 export { TopLayerCallback }

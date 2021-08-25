@@ -1,8 +1,11 @@
 import type { onMessageAction } from "../../../typings/global"
-import { waitObject } from "../../../src/helpers"
+import { waitElement, waitObject } from "../../../src/helpers"
 import _BrainlyEnhancer from "../../../src/controllers/BrainlyEnhancer"
 import PreventConsolePreventer from "../../controllers/PreventConsolePreventer"
 import DarkTheme from "./DarkThemeIcon"
+import MassDelete from "./MassDelete"
+
+let BrainlyEnhancer: _BrainlyEnhancer
 
 class Main {
 	selectors: string[]
@@ -10,7 +13,8 @@ class Main {
 	DarkTheme: DarkTheme
 
 	constructor(){
-		window.BrainlyEnhancer = new _BrainlyEnhancer()
+		BrainlyEnhancer = new _BrainlyEnhancer()
+		window.BrainlyEnhancer = BrainlyEnhancer
 
 		this.DarkTheme = new DarkTheme()
 		this.selectors = [
@@ -86,6 +90,14 @@ class Main {
 			for(const selector of this.selectors){
 				const elements = document.querySelectorAll(selector)
 				if(elements.length) for(const element of Array.from(elements)) element.remove()
+
+				const BrainlyPlusOverlay = <HTMLDivElement>document.querySelector("div[class*=OfferModal__toplayer]")
+
+				if(BrainlyPlusOverlay){
+					if(BrainlyPlusOverlay.classList.contains("sg-overlay")) BrainlyPlusOverlay.remove()
+					else if(BrainlyPlusOverlay.parentElement?.classList.contains("sg-overlay")) BrainlyPlusOverlay.parentElement.remove()
+					else BrainlyPlusOverlay.parentElement?.parentElement?.remove()
+				}
 			}
 		})
 		
@@ -127,3 +139,24 @@ class Main {
 
 new Main()
 new PreventConsolePreventer()
+
+function ModerationTools(){
+	new MassDelete()
+}
+
+// New layout
+waitElement("meta[name=user_data]", {
+	expires: 10000,
+	noError: true
+}).then((element: HTMLMetaElement & {isError: boolean}) => {
+	if(element.isError) return
+
+	const userData = JSON.parse(element.content)
+	if(userData.isModerator) ModerationTools()
+})
+
+// Old layout
+waitElement("#moderate-functions-panel", {
+	expires: 10000,
+	noError: true
+}).then(e => !e.isError && ModerationTools())

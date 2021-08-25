@@ -16,10 +16,15 @@ export default class QuestionSection {
 	}
 	async Init(){
 		if(this.isSearching) return
-		this.FindModerationContainer()
+		
+		await this.FindModerationContainer()
 
 		if(!this.main.data.is_deleted){
 			await BrainlyEnhancer.FetchReasons()
+			await waitElement("button.sg-button", {
+				element: this.moderationContainer
+			})
+
 			if(!this.quickButtons) this.AppendQuickButtons()
 		}
 	}
@@ -30,8 +35,8 @@ export default class QuestionSection {
 			element: this.main.questionContainer
 		}))
 
-		this.isSearching = false
 		this.moderationContainer.classList.add("sg-flex--wrap")
+		this.isSearching = false
 	}
 	AppendQuickButtons(){
 		this.quickButtons = new QuickButtonsForQuestions(this)
