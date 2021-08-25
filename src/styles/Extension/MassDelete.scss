@@ -1,7 +1,7 @@
 #MassDeleteUsersPanel{
 	width: 215px;
 	min-height: 177px;
-	max-height: 600px;
+	max-height: 300px;
 	overflow-x: hidden;
 	overflow-y: auto;
 }
@@ -9,15 +9,52 @@
 #MassDeleteOptions{
 	display: flex;
 	justify-content: space-between;
+	box-sizing: border-box;
 	align-items: baseline;
 	position: relative;
-	top: 10px;
-	height: 100%;
 
 	> input[name=MassDeleteOption]{
-		margin: 0 4px 0 10px;
-		padding: 0 10px;
-		position: relative;
-		top: 2px;
+		height: 0;
+		width: 0;
+
+		&::before{
+			content: "";
+			background-color: #c8c8c8;
+			height: 14px;
+			width: 14px;
+			position: absolute;
+			top: 6px;
+			border-radius: 50%;
+		}
+
+		&:checked::before{
+			background-color: rgb(49, 120, 196);
+		}
+
+		~ label{
+			line-height: 1.5rem;
+			font-size: 1rem;
+			user-select: none;
+			cursor: pointer;
+			margin: 0 10px 0 20px;
+		}
+	}
+}
+
+#MassDeleteTextarea{
+	box-sizing: border-box;
+	width: 350px;
+	height: auto;
+	min-height: 205px;
+	max-height: 300px;
+
+	&:focus::placeholder{
+		visibility: hidden;
+	}
+}
+
+body.dark{
+	#MassDeleteTextarea{
+		border: none;
 	}
 }

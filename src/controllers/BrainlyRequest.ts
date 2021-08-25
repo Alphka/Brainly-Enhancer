@@ -128,6 +128,11 @@ export function GetAllAnswers(userId: number | string, callback?: (id: number) =
 		while(data.canFetch){
 			const request = await Request<GetAnswersByIdResponse>(`/api/28/api_responses/get_by_user?userId=${userId}&page=${data.currentPage}&limit=${limit}`)
 
+			if(request?.status === 531){
+				BrainlyEnhancer.Error("Algo deu errado")
+				break
+			}
+
 			if(request?.data?.success){
 				const response = request.data
 

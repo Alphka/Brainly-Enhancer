@@ -86,7 +86,12 @@ class ContentScript {
 	InjectStyles(){
 		chrome.storage.local.get(["darkTheme", "expandLayout"], values => {
 			const { darkTheme, expandLayout } = values
-			if(darkTheme) ext.runtime.sendMessage({ action: "insertDarkTheme" })
+			
+			if(darkTheme){
+				ext.runtime.sendMessage({ action: "insertDarkTheme" })
+				waitElement("body").then(body => body.classList.add("dark"))
+			}
+
 			if(expandLayout) ext.runtime.sendMessage({ action: "expandLayout" })
 		})
 	}

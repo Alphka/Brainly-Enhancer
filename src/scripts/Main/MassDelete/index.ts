@@ -28,7 +28,7 @@ export default class MassDelete {
 		spinner: HTMLDivElement
 		text: HTMLSpanElement
 	}
-	textarea: HTMLTextAreaElement & {
+	textarea: HTMLDivElement & {
 		container: HTMLDivElement
 	}
 	usersPanel: HTMLDivElement
@@ -109,7 +109,7 @@ export default class MassDelete {
 		this.options = {
 			container: createElement("div", {
 				id: "MassDeleteOptions",
-				class: "sg-flex sg-flex--justify-content-space-around",
+				class: "sg-flex sg-flex--justify-content-space-around sg-flex--margin-top-s",
 			}),
 			questions: createElement("input", {
 				type: "radio",
@@ -152,15 +152,15 @@ export default class MassDelete {
 			class: "sg-flex sg-flex--justify-content-space-around"
 		})
 
-		this.textarea = createElement("textarea", {
-			class: "sg-textarea sg-flex--inline",
-			style: "min-width: 350px; height: 600px",
+		this.textarea = createElement("div", {
+			class: "sg-textarea",
+			contenteditable: "true",
+			id: "MassDeleteTextarea",
 			placeholder: "Aqui você pode inserir o perfil do usuário, ou o seu ID"
 				+ "\n\nPor exemplo:"
-				+ "\n\nhttps://brainly.com.br/perfil/Alphka-14558160"
-				+ "\nhttps://brainly.com.br/app/profile/14558160/answers"
-				+ "\n14558160"
-				+ "\n..."
+				+ `\n\n${location.origin}/perfil/user-12345678`
+				+ `\n${location.origin}/app/profile/12345678`
+				+ "\n12345678"
 		})
 
 		this.usersPanel = createElement("div", {
@@ -252,8 +252,8 @@ export default class MassDelete {
 	}
 	FixTextareaScrollbar(){
 		const style = this.textarea.style
-		
-		if(this.textarea.scrollHeight > 612){
+
+		if(this.textarea.scrollHeight > 300 + 16){
 			style.borderTopRightRadius = "unset"
 			style.borderBottomRightRadius = "unset"
 		}else{
@@ -265,17 +265,21 @@ export default class MassDelete {
 		if(this.isFetching) return
 		this.isFetching = true		 
 
-		const ids = this.textarea.value
-			.split("\n")
-			.filter(line => line.trim().length)
+		let matches = [...this.textarea.innerHTML.matchAll(/(?<=<div>)\w*(?<!<\/div>)/gi)]
+			.map(match => match[0])
+			.filter(line => line?.trim().length)
+		
+		if(!matches.length) matches = [this.textarea.textContent]
+
+		const ids = matches
 			.map(line => {
 				if(isNumber(line)) return line
 				return line.match(/(?<=[\/\-])(?<id>\d+)(?<!\/)/)?.groups?.id
 			})
-			.filter(e => e)
+			.filter(line => line)
 		
 		if(!ids.length){
-			this.isFetching = false
+			this.isFetching = false	
 			this.RemoveUser(null)
 			return
 		}
@@ -388,7 +392,7 @@ export default class MassDelete {
 		for(const user of allUsers){
 			this.waitForRequest = true
 
-			// If it has no IDs, loop code
+			// If it has no IDs, shut down loop
 			setTimeout(() => this.waitForRequest = false, 1000)
 
 			if(option === "answers"){

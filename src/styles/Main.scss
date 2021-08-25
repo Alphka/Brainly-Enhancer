@@ -40,16 +40,13 @@
 }
 
 .brn-moderation-panel__list{
+	height: auto!important;
 	overflow-y: auto!important;
 	overflow-x: hidden!important;
 }
 
 .brn-moderation-panel{
 	margin-right: 15px;
-}
-
-.brn-moderation-panel__list{
-	height: auto;
 }
 
 .brn-messages__list,
