@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import defaultReasons from "../../public/database/DefaultReasons.json"
 import { waitObject } from "../helpers"
+import isNumber from "../helpers/isNumber"
 
 type QuickButtonsReasons = {
 	category: number
@@ -136,10 +137,17 @@ class BrainlyEnhancer {
 			}
 		})
 	}
-	ExtractId(type: "question", url: string){
-		const match = new URL(url).pathname.match(/(?<=\/)\d+(?<!\/)/)
-		if(!match) throw new Error(`Could not find ${type} ID: ${url}`)
-		return Number(match[0])
+	ExtractId(string: string, forceReturnArray?: false): number | number[]
+	ExtractId(string: string, forceReturnArray: true): number[]
+	ExtractId(string: string, forceReturnArray?: boolean){
+		const ids = string
+			.replace(/((?:.*?[-:/"])(?=\d))|(?:[?/"#].*)|(?:[a-z]{1,})|-/gi, "")
+			.split(/[\r\n\t]+/)
+			.map(line => line.trim())
+			.filter(id => isNumber(id))
+			.map(id => Number(id))
+
+		return !forceReturnArray && ids.length === 1 ? ids[0] : ids
 	}
 	get isLogged(){
 		return new Promise<boolean>(async resolve => {

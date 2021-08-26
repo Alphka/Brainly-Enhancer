@@ -28,7 +28,7 @@ export default class MassDelete {
 		spinner: HTMLDivElement
 		text: HTMLSpanElement
 	}
-	textarea: HTMLDivElement & {
+	textarea: HTMLTextAreaElement & {
 		container: HTMLDivElement
 	}
 	usersPanel: HTMLDivElement
@@ -53,7 +53,7 @@ export default class MassDelete {
 	constructor(){
 		this.className = "sg-flex sg-flex--align-items-center sg-flex--justify-content-center"
 		this.isFetching = false
-		this.Delay = 1500
+		this.Delay = 1000
 		this.users = new Map()
 		this.contentToDelete = []
 
@@ -152,9 +152,8 @@ export default class MassDelete {
 			class: "sg-flex sg-flex--justify-content-space-around"
 		})
 
-		this.textarea = createElement("div", {
+		this.textarea = createElement("textarea", {
 			class: "sg-textarea",
-			contenteditable: "true",
 			id: "MassDeleteTextarea",
 			placeholder: "Aqui você pode inserir o perfil do usuário, ou o seu ID"
 				+ "\n\nPor exemplo:"
@@ -222,7 +221,7 @@ export default class MassDelete {
 		this.textarea.addEventListener("input", this.TextAreaListener.bind(this))
 		this.link.addEventListener("click", this.ShowMenu.bind(this))
 		this.deleteButton.addEventListener("click", e => this.StartDeleting(this.option))
-		this.menu.addEventListener("click", e => e.target.classList.contains("sg-overlay") && this.HideMenu())
+		this.menu.addEventListener("mousedown", e => e.target.classList.contains("sg-overlay") && this.HideMenu())
 		window.addEventListener("keyup", e => e.key === "Escape" && this.HideMenu())
 	}
 	async AppendLinkToBrainlyMenu(){
@@ -246,45 +245,48 @@ export default class MassDelete {
 		await ModeratePanel.AddItem(this.link)
 	}
 	TextAreaListener(){
-		this.FixTextareaScrollbar()
+		this.FixTextarea()
 		this.TimeoutDate = Date.now() + this.Delay
 		window.setTimeout(() => Date.now() >= this.TimeoutDate && this.RenderUsers(), this.Delay + 10)
 	}
-	FixTextareaScrollbar(){
-		const style = this.textarea.style
+	FixTextarea(){
+		const computedStyle = window.getComputedStyle(this.textarea),
+		style = this.textarea.style
 
-		if(this.textarea.scrollHeight > 300 + 16){
+		if(!this.textarea.dataset.height) this.textarea.dataset.height = computedStyle.height.split("px")[0]
+		if(!this.textarea.dataset.maxHeight) this.textarea.dataset.maxHeight = computedStyle.maxHeight.split("px")[0]
+		if(!this.textarea.dataset.borderRadius) this.textarea.dataset.borderRadius = computedStyle.borderRadius.split(" ")[0]
+
+		if(this.textarea.scrollHeight >= Number(this.textarea.dataset.height) && this.textarea.scrollHeight <= Number(this.textarea.dataset.maxHeight)){
+			const borderRadius = this.textarea.dataset.borderRadius
+			style.borderTopRightRadius = borderRadius
+			style.borderBottomRightRadius = borderRadius
+			style.height = this.textarea.scrollHeight + "px"
+		}else{
+			// TODO: Make it go back to normal height
 			style.borderTopRightRadius = "unset"
 			style.borderBottomRightRadius = "unset"
-		}else{
-			style.borderTopRightRadius = "20px"
-			style.borderBottomRightRadius = "20px"
 		}
 	}
 	async RenderUsers(){
 		if(this.isFetching) return
-		this.isFetching = true		 
+		this.isFetching = true
 
-		let matches = [...this.textarea.innerHTML.matchAll(/(?<=<div>)\w*(?<!<\/div>)/gi)]
-			.map(match => match[0])
-			.filter(line => line?.trim().length)
-		
-		if(!matches.length) matches = [this.textarea.textContent]
-
-		const ids = matches
-			.map(line => {
-				if(isNumber(line)) return line
-				return line.match(/(?<=[\/\-])(?<id>\d+)(?<!\/)/)?.groups?.id
-			})
-			.filter(line => line)
+		const ids = BrainlyEnhancer.ExtractId(this.textarea.value, true)
 		
 		if(!ids.length){
-			this.isFetching = false	
-			this.RemoveUser(null)
-			return
+			this.isFetching = false
+			return this.RemoveUser(null)
 		}
+		
+		const removedIds = new Array as string[]
+		const everyUserId = [...this.users.keys()]
 
-		const data = await GetUsersById(...ids)
+		ids.forEach(id => !removedIds.includes(id) && removedIds.push(id))
+
+		if(removedIds.every(id => everyUserId.includes(id))) return this.isFetching = false
+
+		const data = await GetUsersById(...removedIds)
 		const usersIdsRequest = data.map(user => user.id)
 		const listedUsers = Array.from(this.users.values()).map(user => user.id)
 

@@ -97,7 +97,7 @@ export function DeleteAnswer(data: BrainlyActionData, config?: AxiosRequestConfi
 	return Delete("/api/28/moderation_new/delete_response_content", data, config)
 }
 
-export async function GetUsersById(...ids: Array<string | number>){
+export async function GetUsersById(...ids: (string | number)[]){
 	const url = new URL(location.origin + "/api/28/api_users/get_by_id")
 	ids.forEach(id => url.searchParams.append("id[]", String(id)))
 	
