@@ -1,4 +1,4 @@
-import axios, { AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios"
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import type {
 	GenericResponseBrainly,
 	Presence,
@@ -6,8 +6,7 @@ import type {
 	QuestionMainViewQuestionData,
 	BrainlyActionData,
 	GetUserByIdData,
-	GetAnswersByIdResponse,
-	GetQuestionsByIdResponse
+	UserContentQuery
 } from "../../typings/brainly"
 
 export interface BrainlyResponseMainView extends GenericResponseBrainly {
@@ -24,12 +23,9 @@ function GetModeratorURL(pathname: string){
 	return url.href.replace(/%5B%5D/g, "[]")
 }
 
-async function Request<T>(
-	url: string,
-	method?: "GET" | "POST",
-	data?: any,
-	config?: AxiosRequestConfig
-): Promise<AxiosResponse<T>>{
+function Request(url: string, method?: "GET" | "POST", data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<GenericResponseBrainly>>
+function Request<T>(url: string, method?: "GET" | "POST", data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>>
+async function Request(url: string, method?: "GET" | "POST", data?: any, config?: AxiosRequestConfig){
 	const requestData: AxiosRequestConfig = {
 		method: method || "GET",
 		url: GetModeratorURL(url)
@@ -64,7 +60,7 @@ export async function RequestAction(url: string, data: BrainlyActionData, config
 }
 
 export function GetQuestion(questionId: string | number){
-	return <Promise<AxiosResponse<BrainlyResponseMainView>>>Request("/api/28/api_tasks/main_view/" + questionId)
+	return Request<BrainlyResponseMainView>("/api/28/api_tasks/main_view/" + questionId)
 }
 
 export function ExpireTicket(taskId: number){
@@ -76,7 +72,7 @@ export function ExpireTicket(taskId: number){
 
 async function Delete(url: string, data: BrainlyActionData, config?: AxiosRequestConfig){
 	const result = await RequestAction(url, data, config)
-	if(result.success) ExpireTicket(data.taskId)
+	if(result.success) setTimeout(() => ExpireTicket(data.taskId), 1000)
 	return result
 }
 
@@ -105,83 +101,34 @@ export async function GetUsersById(...ids: Array<string | number>){
 	const url = new URL(location.origin + "/api/28/api_users/get_by_id")
 	ids.forEach(id => url.searchParams.append("id[]", String(id)))
 	
-	const response = await Request<GenericResponseBrainly>(url.pathname + url.search)
+	const response = await Request(url.pathname + url.search)
 	const { data } = response
 
 	if(!data.success) throw data.message || "Algo deu errado"
 	return <GetUserByIdData[]>data.data
 }
 
-export function GetAllAnswers(userId: number | string, callback?: (id: number) => any, limit: number | string = 100, delay: number = 300){
-	const data: {
-		allAnswers: Set<number>
-		currentPage: number
-		canFetch: boolean
-		lastPage?: number
-	} = {
-		allAnswers: new Set,
-		currentPage: 1,
-		canFetch: true
-	}	
-
-	return new Promise<number[]>(async resolve => {
-		while(data.canFetch){
-			const request = await Request<GetAnswersByIdResponse>(`/api/28/api_responses/get_by_user?userId=${userId}&page=${data.currentPage}&limit=${limit}`)
-
-			if(request?.status === 531){
-				BrainlyEnhancer.Error("Algo deu errado")
-				break
-			}
-
-			if(request?.data?.success){
-				const response = request.data
-
-				if(!data.lastPage){
-					const url = new URL(response.pagination.last)
-					data.lastPage = Number(url.searchParams.get("page"))
-				}
-
-				const answers = response.data.map(answer => answer.id)
-
-				answers.forEach(id => {
-					if(!data.allAnswers.has(id)) data.allAnswers.add(id)
-					if(callback) callback(id)
-				})
-
-				if(data.lastPage === 0 || data.currentPage === data.lastPage){
-					data.canFetch = false
-					break
-				}
-
-				data.currentPage++
-			}
-
-			if(!request) BrainlyEnhancer.Error("Request failed")
-			await new Promise(resolve => setTimeout(resolve, delay))
-		}
-
-		resolve([...data.allAnswers.values()])
-	})
-}
-
-export async function GetAllQuestions(userId: number, callback?: (id: number) => any, delay: number = 300){
+async function GetContentQuery(userId: number, type: "questions" | "answers", hash: string, callback?: (id: number) => any, delay: number = 300){
 	const market = (<HTMLMetaElement>document.querySelector("meta[name=market]"))?.content || window.siteLocale || document.documentElement.className
 
 	const config: {
 		url: URL
 		canRequest: boolean
-		before?: string
+		before?: string,
+		queryType: "UserQuestionsQuery" | "UserAnswersQuery"
 	} = {
 		url: new URL(`${location.origin}/graphql/${market}`),
 		canRequest: true,
-		before: null
+		before: null,
+		queryType: type === "questions" ? "UserQuestionsQuery" : "UserAnswersQuery"
 	}
 
-	config.url.searchParams.append("operationName", "UserQuestionsQuery")
+	config.url.searchParams.append("operationName", config.queryType)
+
 	config.url.searchParams.append("extensions", JSON.stringify({
 		persistedQuery: {
 			version: 1,
-			sha256Hash: "5d7554cffe3460517da62dee6a05cbc273d9ea65915a0f8465386b68165ec626"
+			sha256Hash: hash
 		}
 	}))
 
@@ -193,24 +140,24 @@ export async function GetAllQuestions(userId: number, callback?: (id: number) =>
 			before
 		}))
 
-		const response = await Request<GetQuestionsByIdResponse>(url.pathname + url.search)
+		const response = await Request<UserContentQuery>(url.pathname + url.search)
 
-		return response.data.data.userById.questions
+		return response.data.data.userById[type]
 	}
 
 	return new Promise<number[]>(async resolve => {
-		const allAnswers = new Array as number[]
+		const allContent = new Array as number[]
 
 		while(config.canRequest){
-			if(allAnswers.length) await new Promise(resolve => setTimeout(resolve, delay))
+			if(allContent.length) await new Promise(resolve => setTimeout(resolve, delay))
 
 			const data = await GetData(config.url.href, config.before)
 	
 			data.edges.forEach(edge => {
-				const id = edge.node.databaseId
+				const id: number = type === "questions" ? edge.node.databaseId : edge.node.question.databaseId
 				
-				if(!allAnswers.includes(id)){
-					allAnswers.push(id)
+				if(!allContent.includes(id)){
+					allContent.push(id)
 					if(callback) callback(id)
 				}
 			})
@@ -219,6 +166,67 @@ export async function GetAllQuestions(userId: number, callback?: (id: number) =>
 			config.before = data.pageInfo.endCursor
 		}
 
-		resolve(allAnswers)
+		resolve(allContent)
 	})
+}
+
+/** Returns `undefined` if the answer was not found */
+export async function GetAnswerIdByTask(userId: number, questionId: number){
+	console.log("Requesting task api", userId, questionId)
+	const request = await GetQuestion(questionId)
+	return request.data.data.responses.find(answer => answer.user_id === userId)?.id
+}
+
+export async function GetAllAnswers(userId: number, callback?: (id: number) => any, delay: number = 300){
+	const config: {
+		canLoop: boolean
+		hasFinished: boolean
+		allQuestions: number[]
+		allAnswers: number[]
+	} = {
+		canLoop: true,
+		hasFinished: false,
+		allQuestions: new Array,
+		allAnswers: new Array
+	}
+
+	const questionsCallback = (id: number) => {
+		if(id && !config.allQuestions.includes(id)){
+			config.allQuestions.push(id)
+			console.log("Tarefa adicionada:", id)
+		}
+	}
+
+	GetContentQuery(userId, "answers", "6eeba1e17e17e533d95532979686feb05533a91b8cf27c239ab41909855a92b5", questionsCallback, delay).then(ids => {
+		config.hasFinished = true
+	})
+
+	while(config.canLoop){
+		console.log("Entering loop")
+
+		if(!config.allQuestions.length){
+			console.log("No length")
+			await new Promise(resolve => setTimeout(resolve, 100))
+			continue
+		}
+
+		const questions = config.allQuestions.splice(0, 4)
+
+		for(const questionId of questions){
+			const answerId = await GetAnswerIdByTask(userId, questionId)
+
+			if(answerId && !config.allAnswers.includes(answerId)){
+				config.allAnswers.push(answerId)
+				if(callback) callback(answerId)
+			}
+		}
+
+		if(config.hasFinished && !config.allQuestions.length) config.canLoop = false
+	}
+	
+	return config.allAnswers
+}
+
+export function GetAllQuestions(userId: number, callback?: (id: number) => any, delay: number = 300){
+	return GetContentQuery(userId, "questions", "5d7554cffe3460517da62dee6a05cbc273d9ea65915a0f8465386b68165ec626", callback, delay)
 }

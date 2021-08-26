@@ -392,20 +392,25 @@ export default class MassDelete {
 		for(const user of allUsers){
 			this.waitForRequest = true
 
-			// If it has no IDs, shut down loop
-			setTimeout(() => this.waitForRequest = false, 1000)
+			switch(option){
+				case "answers":
+					await GetAllAnswers(user.id, id => {
+						console.log("Resposta adicionada:", id)
+						this.contentToDelete.push(id)
+					}).finally(() => this.waitForRequest = false)
+				break
+				case "questions":
+					// If it has no IDs, shut down loop
+					setTimeout(() => this.waitForRequest = false, 1000)
 
-			if(option === "answers"){
-				await GetAllAnswers(user.id, id => {
-					this.contentToDelete.push(id)
-					this.waitForRequest = false
-				})
-			}else if(option === "questions"){
-				await GetAllQuestions(user.id, id => {
-					this.contentToDelete.push(id)
-					this.waitForRequest = false
-				})
+					await GetAllQuestions(user.id, id => {
+						this.contentToDelete.push(id)
+						this.waitForRequest = false
+					})
+				break
+				default: throw new Error("Invalid option: " + option)
 			}
+
 		}
 	}
 	RequestListener(option: "answers" | "questions"){
@@ -416,18 +421,24 @@ export default class MassDelete {
 			const contentToDelete = this.contentToDelete.splice(0, 4)
 
 			for(const id of contentToDelete){
-				if(option === "answers"){
-					DeleteAnswer({
-						model_id: id,
-						reason: "Seu conteúdo foi excluído por não estar de acordo com as regras de utilização do Brainly. Por favor, poste apenas conteúdo escolar, e formule perguntas e respostas completas. Para saber mais sobre as regras de uso do Brainly acesse http://brainly.ninja/br/regras",
-						reason_id: 50
-					})
-				}else if(option === "questions"){
-					DeleteQuestion({
-						model_id: id,
-						reason: "Seu conteúdo foi excluído por não estar de acordo com as regras de utilização do Brainly. Por favor, poste apenas conteúdo escolar, e formule perguntas e respostas completas. Para saber mais sobre as regras de uso do Brainly acesse http://brainly.ninja/br/regras",
-						reason_id: 52
-					})
+				const data = {
+					model_id: id,
+					reason: "Seu conteúdo foi excluído por não estar de acordo com as regras de utilização do Brainly. Por favor, poste apenas conteúdo escolar, e formule perguntas e respostas completas. Para saber mais sobre as regras de uso do Brainly acesse http://brainly.ninja/br/regras"
+				}
+
+				switch(option){
+					case "answers":
+						DeleteAnswer({
+							...data,
+							reason_id: 50
+						})
+					break
+					case "questions":
+						DeleteQuestion({
+							...data,
+							reason_id: 52
+						})
+					break
 				}
 			}
 

@@ -612,46 +612,81 @@ interface GraphQLAuthor {
 	__typename: "User"
 }
 
-interface GetQuestionsByIdResponse extends GenericResponseBrainly {
+type Grade = {
+	name: string
+	slug: string
+	__typename: "Grade"
+}
+
+type Subject = {
+	name: string
+	slug: string
+	__typename: "Subject"
+}
+
+interface UserAnswersQuery extends UserContentQuerySettings {
+	edges: {
+		node: {
+			attachments: any[]
+			author: GraphQLAuthor
+			content: string
+			created: string
+			isBest: boolean
+			isConfirmed: boolean
+			question: {
+				content: string
+				databaseId: number
+				grade: Grade
+				subject: Subject
+				__typename: "Question"
+			}
+			ratesCount: number
+			rating: number
+			thanksCount: number
+			__typename: "Answer"
+		}
+		__typename: "AnswerEdge"
+	}[]
+}
+
+interface UserQuestionsQuery extends UserContentQuerySettings {
+	edges: {
+		node: {
+			answers: {
+				nodes: {
+					author: GraphQLAuthor
+					__typename: "Answer"
+				}[]
+				__typename: "AnswerConnection"
+			}
+			attachments: any[]
+			author: GraphQLAuthor
+			canBeAnswered: boolean
+			content: string
+			created: string
+			databaseId: number
+			grade: Grade
+			subject: Subject
+			__typename: "Question"
+		}
+		__typename: "QuestionEdge"
+	}[]
+}
+
+interface UserContentQuerySettings {
+	pageInfo: {
+		endCursor: string
+		hasNextPage: boolean
+		__typename: "PageInfo"
+	}
+	__typename: "UserQuestionsConnection"
+}
+
+interface UserContentQuery extends GenericResponseBrainly {
 	data: {
 		userById: {
-			questions: {
-				edges: {
-					node: {
-						answers: {
-							nodes: {
-								author: GraphQLAuthor
-								__typename: "Answer"
-							}[]
-							__typename: "AnswerConnection"
-						}
-						attachments: any[]
-						author: GraphQLAuthor
-						canBeAnswered: boolean
-						content: string
-						created: string
-						databaseId: number
-						grade: {
-							name: string
-							slug: string
-							__typename: "Grade"
-						}
-						subject: {
-							name: string
-							slug: string
-							__typename: "Subject"
-						}
-						__typename: "Question"
-					}
-					__typename: "QuestionEdge"
-				}[]
-				pageInfo: {
-					endCursor: string
-					hasNextPage: boolean
-					__typename: "PageInfo"
-				}
-				__typename: "UserQuestionsConnection"				
-			}
+			questions?: UserQuestionsQuery
+			answers?: UserAnswersQuery
 			__typename: "User"
 		}
 	}
