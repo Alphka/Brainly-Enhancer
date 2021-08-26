@@ -5,6 +5,6 @@ Brainly Enhancer é uma extensão criada para adicionar algumas ferramentas ao B
 *  Extraia-o em uma pasta qualquer
 *  Vá para a página de extensões do Chrome: chrome://extensions/
 *  Ative o modo de desenvolvedor
-*  Clique "Carregar extensão descompactada"
-*  Vá a pasta que você extraiu
+*  Clique em "Carregar extensão descompactada"
+*  Vá até a pasta que você extraiu
 *  Selecione a pasta "**build**" e clique em "Selecionar pasta"

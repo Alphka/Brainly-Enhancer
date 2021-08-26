@@ -1,7 +1,7 @@
 import ext from "webextension-polyfill"
 import * as brainlyDetails from "../public/database/BrainlyDetails.json"
 import _BrainlyEnhancer from "./controllers/BrainlyEnhancer"
-import { createElement, waitElement } from "./helpers"
+import { createElement, waitElement, waitObject } from "./helpers"
 import type { BrainlyHostnames } from "../typings/brainly"
 import type { onMessageInformation } from "../typings/global"
 
@@ -73,14 +73,15 @@ class ContentScript {
 
 		const MainStyle = this.InsertStyle("Main")
 		
-		MainStyle.addEventListener("load", () => {
-			waitElement("link[href*=style-guide]", {
-				expires: 10000,
-				noError: true
-			}).then(style => {
-				if(style.isError) return
-				style.after(MainStyle)
-			})
+		MainStyle.addEventListener("load", async () => {
+			const brainlyStyles = [
+				`link[href*="/sf/css/main]"`,
+				`link[href*="style-guide"]`
+			]
+
+			await waitObject(brainlyStyles.map(selector => `document.querySelector(${JSON.stringify(selector)})`).join(" || "))
+			
+			document.head.lastElementChild?.after(MainStyle)
 		})
 	}
 	InjectStyles(){

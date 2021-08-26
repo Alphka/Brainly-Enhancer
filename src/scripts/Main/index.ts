@@ -130,33 +130,17 @@ class Main {
 			window.dispatchEvent(customEvent)
 		})	
 	}
-	InitSections(){
-		waitObject("window.dataLayer").then(() => {
-			if(window.dataLayer[0].user.isLoggedIn) this.DarkTheme.AppendIcon()
-		})
+	async InitSections(){
+		if(!(await BrainlyEnhancer.isLogged)) return
+		
+		this.DarkTheme.AppendIcon()
+
+		if(await BrainlyEnhancer.isModerator) this.ModerationTools()
+	}
+	ModerationTools(){
+		new MassDelete()
 	}
 }
 
 new Main()
 new PreventConsolePreventer()
-
-function ModerationTools(){
-	new MassDelete()
-}
-
-// New layout
-waitElement("meta[name=user_data]", {
-	expires: 10000,
-	noError: true
-}).then((element: HTMLMetaElement & {isError: boolean}) => {
-	if(element.isError) return
-
-	const userData = JSON.parse(element.content)
-	if(userData.isModerator) ModerationTools()
-})
-
-// Old layout
-waitElement("#moderate-functions-panel", {
-	expires: 10000,
-	noError: true
-}).then(e => !e.isError && ModerationTools())

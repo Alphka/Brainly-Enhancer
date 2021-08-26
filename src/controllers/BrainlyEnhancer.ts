@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import defaultReasons from "../../public/database/DefaultReasons.json"
+import { waitObject } from "../helpers"
 
 type QuickButtonsReasons = {
 	category: number
@@ -139,6 +140,26 @@ class BrainlyEnhancer {
 		const match = new URL(url).pathname.match(/(?<=\/)\d+(?<!\/)/)
 		if(!match) throw new Error(`Could not find ${type} ID: ${url}`)
 		return Number(match[0])
+	}
+	get isLogged(){
+		return new Promise<boolean>(async resolve => {
+			if(!window.dataLayer) await waitObject("window.dataLayer")
+			resolve(window.dataLayer[0].user.isLoggedIn)
+		})
+	}
+	get isModerator(){
+		return new Promise<boolean>(async resolve => {
+			if(!(await this.isLogged)) return false
+
+			await waitObject(`document.querySelector("meta[name=user_data]") || document.querySelector("#moderate-functions-panel")`)
+	
+			const moderatePanel = document.querySelector("#moderate-functions-panel") as HTMLDivElement
+			const userDataElement = document.querySelector("meta[name=user_data]") as HTMLMetaElement
+			
+			if(userDataElement?.content) resolve(JSON.parse(userDataElement.content).isModerator)
+			else if(moderatePanel) resolve(true)
+			else resolve(false)
+		})
 	}
 }
 

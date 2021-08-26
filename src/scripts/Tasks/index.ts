@@ -25,9 +25,11 @@ function ListenToToplayer(){
 	})
 }
 
-waitObject("window.__default_config && window.dataLayer").then(() => {
+BrainlyEnhancer.isModerator.then(result => {
+	if(!result) return
+
 	if(BrainlyEnhancer.checkPrivileges(102)){
 		new QuestionPage()
-		ListenToToplayer()
+		ListenToToplayer()	
 	}
 })

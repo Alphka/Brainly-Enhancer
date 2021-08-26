@@ -93,6 +93,7 @@ function waitElement(selector: string, options?: WaitElementOptions){
 			}
 
 			if(options?.expires && Date.now() >= options.expires + begin){
+				clearInterval(interval)
 				if(options.noError) resolve({ isError: true })
 				else reject()
 			}

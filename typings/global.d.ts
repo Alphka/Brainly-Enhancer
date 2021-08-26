@@ -37,7 +37,7 @@ type dataLayer = [
 			entry?: 0 | 1
 			emailConfirmed?: boolean
 			getsPaywall?: boolean
-			answererLevel?: "STRONG" | "LURKER" 
+			answererLevel?: "STRONG" | "LURKER" | "NEWBIE"
 			numberOfAnswers?: number
 			accountType?: "student" | "parent"
 			isOnTrial?: boolean
