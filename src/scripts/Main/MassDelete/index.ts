@@ -3,7 +3,6 @@
 import type { GetUserByIdData } from "../../../../typings/brainly"
 import { DeleteAnswer, DeleteQuestion, GetAllAnswers, GetAllQuestions, GetUsersById } from "../../../controllers/BrainlyRequest"
 import { createElement } from "../../../helpers"
-import isNumber from "../../../helpers/isNumber"
 import ModeratePanel from "../ModeratePanel"
 
 export default class MassDelete {

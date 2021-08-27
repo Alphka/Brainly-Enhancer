@@ -1,4 +1,4 @@
-import { waitElement } from "../../helpers"
+import { waitElement, waitObject } from "../../helpers"
 import type { QuestionDataType } from "../../../typings/brainly"
 import AnswerSection from "./AnswerSection"
 import QuestionSection from "./QuestionSection"
@@ -54,14 +54,33 @@ export default class QuestionPage {
 			multiple: true
 		})) as HTMLDivElement[]
 	
-		this.data.responses.forEach((data, index) => {
-			const answersSections = new AnswerSection(this, data)
-	
-			answersSections.mainContainer = this.answersSections.containers[index]
-			answersSections.Init()
+		await waitObject("window.jsData")
 
-			this.answersSections.byId[data.id] = answersSections
-			this.answersSections.all.push(answersSections)
+		this.answersSections.containers.find(container => {
+			const headerAttributes = container.querySelector(".brn-qpage-next-answer-box__header .brn-qpage-next-answer-box-header__attributes")
+			const rating = Math.floor(Number(headerAttributes.querySelector(":scope > div:first-child > .sg-text")?.textContent.split("/")[0]))
+			const thanks = Number(headerAttributes.querySelector(":scope > div:last-child > .sg-text")?.textContent.split("/")[0])
+			const nick = container.querySelector(".brn-qpage-next-answer-box-author > .brn-qpage-next-answer-box-author__description > div:first-child > span")?.textContent
+			
+			const match = jsData.question.answers.find(answer => {
+				if(nick && answer.user.nick === nick) return true
+				return rating === Math.floor(answer.rating) && thanks === answer.thanks
+			})
+
+			if(match){
+				const answersSections = new AnswerSection(this, match)
+	
+				answersSections.mainContainer = container
+				answersSections.Init()
+	
+				this.answersSections.byId[match.databaseId] = answersSections
+				this.answersSections.all.push(answersSections)
+			}else BrainlyEnhancer.log({
+				rating,
+				thanks,
+				nick,
+				answers: jsData.question.answers
+			})
 		})
 	}
 	async ObserveForElements(){

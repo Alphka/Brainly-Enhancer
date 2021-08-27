@@ -1,13 +1,12 @@
-import type { AnswerDataType, AnswerDetails } from "../../../typings/brainly"
+import type { AnswerDetails } from "../../../typings/brainly"
 import { DeleteAnswer } from "../../controllers/BrainlyRequest"
-import { waitObject } from "../../helpers"
 import type QuestionPage from "./QuestionPage"
 import type QuickButton from "./QuickButtons/QuickButton"
 import QuickButtonsForAnswers from "./QuickButtons/QuickButtonsForAnswers"
 
 export default class AnswerSection {
 	main: QuestionPage
-	data: AnswerDataType
+	data: AnswerDetails
 	isSearching: boolean
 	quickButtons: QuickButtonsForAnswers
 	extraDetails: AnswerDetails
@@ -17,13 +16,12 @@ export default class AnswerSection {
 	moderateButton: HTMLButtonElement
 	isBusy: boolean
 
-	constructor(main: QuestionPage, data: AnswerDataType){
+	constructor(main: QuestionPage, data: AnswerDetails){
 		this.main = main
 		this.data = data
 	}
 	async Init(){
-		await waitObject("window.jsData")
-		this.extraDetails = jsData.question.answers.find(answer => answer.databaseId === this.data.id)
+		this.extraDetails = jsData.question.answers.find(answer => answer.databaseId === this.data.databaseId)
 		this.FindModerationContainer()
 		this.FindModerateButton()
 
@@ -42,14 +40,14 @@ export default class AnswerSection {
 	}
 	async FindModerateButton(){
 		this.moderateButton = this.moderationContainer.querySelector(":scope > div:first-child > button")
-		if(!this.moderateButton) throw new Error(`Couldn't find the moderate button of the answer ${this.data.id}`)
+		if(!this.moderateButton) throw new Error(`Couldn't find the moderate button of the answer ${this.data.databaseId}`)
 	}
 	AppendQuickButtons(){
 		this.quickButtons = new QuickButtonsForAnswers(this)
 		this.moderationContainer.firstElementChild.after(this.quickButtons.container)
 	}
 	async onDelete(e: MouseEvent, quickButton: QuickButton){
-		const askConfirmation = this.data.settings.isConfirmed
+		const askConfirmation = this.data.confirmed
 		if(askConfirmation && !confirm("Esta resposta está aprovada.\nVocê tem certeza que deseja eliminá-la?")) return
 
 		const target = <HTMLElement>e.target
@@ -57,7 +55,7 @@ export default class AnswerSection {
 			quickButton.RenderSpinner(target)
 
 			const result = await DeleteAnswer({
-				model_id: this.data.id,
+				model_id: this.data.databaseId,
 				reason_id: quickButton.reasonId,
 				reason: quickButton.reasonText,
 				taskId: this.main.data.id
