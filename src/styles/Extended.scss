@@ -208,16 +208,19 @@ table.activities{
 	margin: 20px 10px!important;
 }
 
-div.sg-layout__aside-content{
-	> div.sg-content-box > div.sg-box,
-	> div.sg-flex.sg-flex--full-width.sg-flex--column > div.sg-box--padding-m.sg-box--border{
+.sg-layout__aside-content{
+	> .sg-content-box > .sg-box .game-box__button{
+		margin-bottom: -24px!important;
+	}
+
+	> .sg-flex.sg-flex--full-width.sg-flex--column > .sg-box--padding-m.sg-box--border{
 		padding-bottom: 0!important;
 	}
 }
 
-div.js-react-aside-content{
-	> div.sg-flex.sg-flex--full-width.sg-flex--column > div.sg-box--padding-m.sg-box--border,
-	> div.sg-content-box.sg-content-box--spaced-bottom-large > div.sg-box.sg-box--gray-secondary-ultra-light.sg-box--padding-m{
+.js-react-aside-content{
+	> .sg-flex.sg-flex--full-width.sg-flex--column > .sg-box--padding-m.sg-box--border,
+	> .sg-content-box.sg-content-box--spaced-bottom-large > .sg-box.sg-box--gray-secondary-ultra-light.sg-box--padding-m{
 		padding-bottom: 0!important;
 	}
 }

@@ -27,12 +27,10 @@ class Main {
 			`div.js-react-brainly-plus-box-aside`,
 			`div.brn-new-ad-placeholder--for-desktop-and-up`,
 			`div.brn-bottom-toplayer`,
-			`div[data-testid="brainly_ads_placeholder"]`,
 			`div[data-testid="brainly_plus_toaster_wrapper"]`,
 			`button[data-test="navigation_payments"]`,
 			`div.brn-brainly-plus-box`,
 			`div#new-ad-placeholder-question-desktop`,
-			`div.brn-ads-box`,
 			`div.js-react-registration-toplayer`,
 			`div[data-testid="registration_toplayer"`,
 			`div[class*=SubscriptionInfo__container]`,
@@ -94,7 +92,7 @@ class Main {
 				const elements = document.querySelectorAll(selector)
 				if(elements.length) for(const element of Array.from(elements)) element.remove()
 
-				const BrainlyPlusOverlay = <HTMLDivElement>document.querySelector("div[class*=OfferModal__toplayer]")
+				const BrainlyPlusOverlay = document.querySelector("div[class*=OfferModal__toplayer]") as HTMLDivElement
 
 				if(BrainlyPlusOverlay){
 					if(BrainlyPlusOverlay.classList.contains("sg-overlay")) BrainlyPlusOverlay.remove()

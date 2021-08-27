@@ -16,7 +16,7 @@ export default class ExtendedMessagesLayout {
 		return this.style.innerHTML = `
 			.brn-messages__conversations,
 			.brn-messages__chatbox{
-				height: ${innerHeight - 161}px;
+				height: ${innerHeight - 161}px!important;
 			}
 
 			.brn-messages__conversations .brn-messages__list{
@@ -40,6 +40,12 @@ export default class ExtendedMessagesLayout {
 			.js-page-wrapper > .sg-layout > .sg-layout__container{
 				max-width: unset;
 				margin: 0!important;
+			}
+
+			@media (min-width: 768px){
+				.sg-layout__container{
+					border-radius: 0!important;
+				}
 			}
 		`
 	}

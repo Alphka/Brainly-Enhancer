@@ -281,7 +281,7 @@ export default class MassDelete {
 
 		ids.forEach(id => !removedIds.includes(id) && removedIds.push(id))
 
-		if(removedIds.every(id => everyUserId.includes(id))) return this.isFetching = false
+		if(everyUserId.length === removedIds.length && removedIds.every(id => everyUserId.includes(id))) return this.isFetching = false
 
 		const data = await GetUsersById(...removedIds)
 		const usersIdsRequest = data.map(user => user.id)

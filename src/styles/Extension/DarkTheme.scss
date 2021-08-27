@@ -1270,4 +1270,8 @@ html.dark{
 	path[fill="#687B8C"]{
 		fill: var(--text-color)!important;
 	}
+
+	.sg-select:hover .sg-select__element{
+		background-color: var(--background-color-blue-light);
+	}
 }

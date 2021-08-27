@@ -147,4 +147,12 @@ body.mint #main-panel .menu-element.current.profile .profile-content .top{
 	}
 }
 
+div[data-testid="brainly_ads_placeholder"],
+div.brn-ads-box{
+	display: none!important;
+	height: 0!important;
+	width: 0!important;
+	margin: 0;
+}
+
 @import "./Extension/*";
