@@ -1,14 +1,11 @@
 import { createElement, waitElement } from "../../../src/helpers"
 
 export default class DarkTheme {
-	clicked: boolean
+	isBusy: boolean
 	container: HTMLUListElement | HTMLDivElement
 	element: HTMLButtonElement | HTMLAnchorElement
 	image: string
 
-	constructor(){
-		this.clicked = false
-	}
 	async AppendIcon(){
 		this.image = `${BrainlyEnhancer.extension.URL}/images/moon.png`
 
@@ -61,16 +58,21 @@ export default class DarkTheme {
 	
 		this.element.addEventListener("click", this.listener.bind(this))
 	}
-	async listener(e: Event){
+	listener(e: Event){
 		e.preventDefault()
 
-		if(this.clicked) return
+		if(this.isBusy) return
+		this.isBusy = true
+		
+		return new Promise<boolean>(resolve => {
+			window.addEventListener("darkThemeChanged", (event: CustomEvent) => {
+				if(!event.detail.success) BrainlyEnhancer.Error("Algo deu errado")
 
-		// Prevent two clicks
-		this.clicked = true
+				this.isBusy = false
+				resolve(event.detail.success)
+			}, {once: true})
 
-		chrome.runtime.sendMessage(BrainlyEnhancer.extension.id, {
-			action: "setDarkTheme"
-		}, () => location.reload())
+			window.dispatchEvent(new CustomEvent("toggleDarkTheme"))
+		})
 	}
 }

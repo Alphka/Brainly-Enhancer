@@ -81,7 +81,8 @@ export function DeleteQuestion(data: BrainlyActionData, config?: AxiosRequestCon
 		give_warning: false,
 		return_points: false,
 		take_points: true,
-		model_type_id: 1
+		model_type_id: 1,
+		reason_id: 52
 	}, data)
 
 	return Delete("/api/28/moderation_new/delete_task_content", data, config)
@@ -91,7 +92,8 @@ export function DeleteAnswer(data: BrainlyActionData, config?: AxiosRequestConfi
 	data = Object.assign({
 		model_type_id: 2,
 		give_warning: false,
-		take_points: true
+		take_points: true,
+		reason_id: 50
 	}, data)
 
 	return Delete("/api/28/moderation_new/delete_response_content", data, config)
@@ -109,7 +111,9 @@ export async function GetUsersById(...ids: (string | number)[]){
 }
 
 async function GetContentQuery(userId: number, type: "questions" | "answers", hash: string, callback?: (id: number) => any, delay: number = 300){
-	const market = (<HTMLMetaElement>document.querySelector("meta[name=market]"))?.content || window.siteLocale || document.documentElement.className
+	const market = (document.querySelector("meta[name=market]") as HTMLMetaElement)?.content
+		|| window.siteLocale
+		|| document.documentElement.className.split(" ").find(name => name.length === 2)
 
 	const config: {
 		url: URL
@@ -172,7 +176,6 @@ async function GetContentQuery(userId: number, type: "questions" | "answers", ha
 
 /** Returns `undefined` if the answer was not found */
 export async function GetAnswerIdByTask(userId: number, questionId: number){
-	console.log("Requesting task api", userId, questionId)
 	const request = await GetQuestion(questionId)
 	return request.data.data.responses.find(answer => answer.user_id === userId)?.id
 }
@@ -193,7 +196,6 @@ export async function GetAllAnswers(userId: number, callback?: (id: number) => a
 	const questionsCallback = (id: number) => {
 		if(id && !config.allQuestions.includes(id)){
 			config.allQuestions.push(id)
-			console.log("Tarefa adicionada:", id)
 		}
 	}
 
@@ -202,10 +204,7 @@ export async function GetAllAnswers(userId: number, callback?: (id: number) => a
 	})
 
 	while(config.canLoop){
-		console.log("Entering loop")
-
 		if(!config.allQuestions.length){
-			console.log("No length")
 			await new Promise(resolve => setTimeout(resolve, 100))
 			continue
 		}

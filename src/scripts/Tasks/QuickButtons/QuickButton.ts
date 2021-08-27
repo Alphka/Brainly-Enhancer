@@ -39,8 +39,8 @@ export default class QuickButton {
 		})
 	}
 	GetButtonText(target: HTMLElement){
-		const button = <HTMLButtonElement>(target instanceof HTMLButtonElement ? target : target.parentElement)
-		const span = <HTMLSpanElement>(button.firstElementChild)
+		const button = (target instanceof HTMLButtonElement ? target : target.parentElement) as HTMLButtonElement
+		const span = button.firstElementChild as HTMLSpanElement
 		return { button, span }
 	}
 	RenderSpinner(target: HTMLElement){

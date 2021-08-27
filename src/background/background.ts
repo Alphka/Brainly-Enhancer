@@ -55,7 +55,9 @@ class Background {
 				? !Boolean((await ext.storage.local.get("darkTheme"))["darkTheme"])
 				: data
 
-			return ext.storage.local.set({darkTheme: value})
+			await ext.storage.local.set({darkTheme: value})
+
+			return true
 		}
 
 		if(action === "setExpandLayout"){

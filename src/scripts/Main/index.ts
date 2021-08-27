@@ -4,6 +4,7 @@ import _BrainlyEnhancer from "../../../src/controllers/BrainlyEnhancer"
 import PreventConsolePreventer from "../../controllers/PreventConsolePreventer"
 import DarkTheme from "./DarkThemeIcon"
 import MassDelete from "./MassDelete"
+import { waitForBody } from "../../helpers/waitForBody"
 
 let BrainlyEnhancer: _BrainlyEnhancer
 
@@ -40,16 +41,17 @@ class Main {
 			`div.truste_box_overlay`,
 			`div.js-react-kodiak-banner-top`,
 			`div.section--lnnYy.section--9DHSr`,
-			`div[class*="OneOffAchievementTooltip-module__tooltip"]`
+			`div[class*="OneOffAchievementTooltip-module__tooltip"]`,
+			`.js-message-box .sg-hide-for-small-only`
 		]
 
 		this.Init()
 	}
 	async Init(){
-		await this.setExtensionData()
 		this.setBrainlyPreferences()
 		
-		if(!document.body) await new Promise(resolve => window.addEventListener("DOMContentLoaded", resolve))
+		await this.setExtensionData()
+		await waitForBody()
 		this.watchForAds()
 		this.InitSections()
 	}
@@ -58,6 +60,7 @@ class Main {
 		if(!document.cookie.includes("cookieconsent_dismissed")) document.cookie = `cookieconsent_dismissed=yes; expires=${date.toUTCString()}; path=/; samesite=Lax`
 	
 		const setLocalStorage = (key: string, value: string) => !localStorage.getItem(key) && localStorage.setItem(key, value)
+		
 		if(location.hostname === "nosdevoirs.fr"){
 			const time = date.getTime()
 			setLocalStorage("notice_preferences", "2:")
@@ -108,12 +111,7 @@ class Main {
 		})
 	}
 	setExtensionData(){
-		const customEvent = new CustomEvent("getExtensionData", {
-			bubbles: true,
-      		cancelable: false
-		})
-
-		return new Promise(resolve => {
+		return new Promise<void>(resolve => {
 			var listener = function(e: MessageEvent){
 				if(!e) return
 				
@@ -122,13 +120,13 @@ class Main {
 				if(action === "setExtensionData"){
 					window.BrainlyEnhancer.extension = e.data.data
 					window.removeEventListener("message", listener)
-					resolve(window.BrainlyEnhancer.extension)
+					resolve()
 				}
 			}
 			
 			window.addEventListener("message", listener)
-			window.dispatchEvent(customEvent)
-		})	
+			window.dispatchEvent(new CustomEvent("getExtensionData"))
+		})
 	}
 	async InitSections(){
 		if(!(await BrainlyEnhancer.isLogged)) return

@@ -1,4 +1,4 @@
-import type { AnswerDetails } from "../../../typings/brainly"
+import type { AnswerDetails, BrainlyActionData } from "../../../typings/brainly"
 import { DeleteAnswer } from "../../controllers/BrainlyRequest"
 import type QuestionPage from "./QuestionPage"
 import type QuickButton from "./QuickButtons/QuickButton"
@@ -46,30 +46,54 @@ export default class AnswerSection {
 		this.quickButtons = new QuickButtonsForAnswers(this)
 		this.moderationContainer.firstElementChild.after(this.quickButtons.container)
 	}
-	async onDelete(e: MouseEvent, quickButton: QuickButton){
-		const askConfirmation = this.data.confirmed
-		if(askConfirmation && !confirm("Esta resposta está aprovada.\nVocê tem certeza que deseja eliminá-la?")) return
-
-		const target = <HTMLElement>e.target
-		try{
-			quickButton.RenderSpinner(target)
-
-			const result = await DeleteAnswer({
-				model_id: this.data.databaseId,
-				reason_id: quickButton.reasonId,
-				reason: quickButton.reasonText,
-				taskId: this.main.data.id
-			})
+	async onDelete(event: MouseEvent, quickButton: QuickButton, isQuestion = false){
+		const Delete = async (options: BrainlyActionData) => {
+			const result = await DeleteAnswer(options)
 
 			if(!result.success) throw result.message || "Algo deu errado"
 			
 			this.quickButtons.container.remove()
 			this.mainContainer.lastElementChild.classList.add("solid-peach-light")
-		}catch(error){
-			BrainlyEnhancer.Error(error)
+		},
+		config = {
+			model_id: this.data.databaseId,
+			taskId: this.main.data.id
+		} as BrainlyActionData
+		
+		if(isQuestion){
+			this.quickButtons.buttons.forEach(button => button.RenderSpinner(button.element))
+
+			return await Delete({
+				...config,
+				reason: quickButton.reasonText
+			}).finally(() => this.isBusy = false)
+		}
+		
+		const target = event.target as HTMLElement
+		const Cancel = () => {
 			this.isBusy = false
-		}finally{
 			quickButton.HideSpinner(target)
 		}
+
+		quickButton.RenderSpinner(target)
+
+		if(event.ctrlKey){
+			const applyWarning = confirm("Você deseja aplicar uma advertência neste conteúdo?")
+			if(applyWarning) config.give_warning = true
+		}else{
+			const askConfirmation = this.data.confirmed
+			if(askConfirmation && !confirm("Esta resposta está aprovada.\nVocê tem certeza que deseja eliminá-la?")) return Cancel()
+		}
+
+		await Delete({
+			...config,
+			reason_id: quickButton.reasonId,
+			reason: quickButton.reasonText
+		})
+		.catch(error => {
+			BrainlyEnhancer.Error(error)
+			quickButton.HideSpinner(target)
+		})
+		.finally(() => this.isBusy = false)
 	}
 }

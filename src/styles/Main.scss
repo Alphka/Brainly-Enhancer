@@ -120,7 +120,7 @@ span.subject{
 }
 
 .sg-spinner-container {
-	&--spaced {
+	&--spaced{
 		padding-left: 6px;
 		padding-right: 6px;
 	}
@@ -135,18 +135,16 @@ span.subject{
 	}
 }
 
-body.mint {
-	#main-panel .menu-element.current.profile .profile-content .top {
-		width: 93%;
+body.mint #main-panel .menu-element.current.profile .profile-content .top{
+	width: 93%;
 
-		> .left {
-			width: 29%;
-		}
+	> .left {
+		width: 29%;
+	}
 
-		> .right {
-			width: 67%;
-		}
+	> .right {
+		width: 67%;
 	}
 }
 
-@import "./Extension/MassDelete";
+@import "./Extension/*";

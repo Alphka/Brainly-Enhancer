@@ -60,8 +60,6 @@ export default class MassDelete {
 		this.Init()
 	}
 	async Init(){
-		if(!document.body) await new Promise(resolve => window.addEventListener("DOMContentLoaded", resolve))
-
 		this.RenderCloseSVG()
 		this.RenderTextArea()
 		this.RenderDeleteButton()
@@ -396,7 +394,6 @@ export default class MassDelete {
 			switch(option){
 				case "answers":
 					await GetAllAnswers(user.id, id => {
-						console.log("Resposta adicionada:", id)
 						this.contentToDelete.push(id)
 					}).finally(() => this.waitForRequest = false)
 				break
@@ -418,7 +415,7 @@ export default class MassDelete {
 		if(!this.canRequest) return
 		this.canRequest = false
 
-		const interval = window.setInterval(() => {
+		const interval = window.setInterval(async () => {
 			const contentToDelete = this.contentToDelete.splice(0, 4)
 
 			for(const id of contentToDelete){
@@ -444,6 +441,7 @@ export default class MassDelete {
 			}
 
 			if(!this.waitForRequest && !this.contentToDelete.length){
+				await new Promise(resolve => setTimeout(resolve, 300))
 				this.canRequest = true
 				this.HideSpinner()
 				clearInterval(interval)

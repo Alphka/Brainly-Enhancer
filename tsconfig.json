@@ -3,13 +3,11 @@
 		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
 		"downlevelIteration": true,
-		"skipLibCheck": true,
 		"noImplicitAny": false,
 		"resolveJsonModule": true,
 		"moduleResolution": "Node",
 		"module": "ESNext",
 		"target": "ES5",
-		"sourceMap": true,
 		"lib": [
 			"ESNext",
 			"DOM"

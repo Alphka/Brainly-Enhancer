@@ -1,4 +1,5 @@
-import { DeleteQuestion } from "../../controllers/BrainlyRequest"
+import type { BrainlyActionData } from "../../../typings/brainly"
+import { DeleteAnswer, DeleteQuestion } from "../../controllers/BrainlyRequest"
 import { waitElement } from "../../helpers"
 import type QuestionPage from "./QuestionPage"
 import type QuickButton from "./QuickButtons/QuickButton"
@@ -42,30 +43,47 @@ export default class QuestionSection {
 		this.quickButtons = new QuickButtonsForQuestions(this)
 		this.moderationContainer.firstElementChild.after(this.quickButtons.container)
 	}
-	async onDelete(e: MouseEvent, quickButton: QuickButton){
-		const askConfirmation = this.main.data.approvedAnswersCount > 0
-		if(askConfirmation && !confirm("Esta questão possui respostas aprovadas.\nVocê tem certeza que deseja eliminá-la?")) return
+	async onDelete(event: MouseEvent, quickButton: QuickButton){
+		const target = event.target as HTMLElement
+		const Cancel = () => {
+			this.isBusy = false
+			quickButton.HideSpinner(target)
+		}
+
+		const config = {
+			model_id: this.main.data.id,
+			reason: quickButton.reasonText,
+			reason_id: quickButton.reasonId
+		} as BrainlyActionData
 		
-		const target = <HTMLElement>e.target
 		try{
 			quickButton.RenderSpinner(target)
 
-			const result = await DeleteQuestion({
-				model_id: this.main.data.id,
-				reason: quickButton.reasonText,
-				reason_id: quickButton.reasonId
-			})
+			if(event.ctrlKey){
+				const applyWarning = confirm("Você deseja aplicar uma advertência neste conteúdo?")
+				if(applyWarning) config.give_warning = true
+			}else if(event.shiftKey){
+				const deleteAnswers = confirm("Você deseja eliminar todas as respostas desta pergunta?")
+
+				// Run two requests at once, but wait for them to finish
+				if(deleteAnswers) await Promise.allSettled(this.main.answersSections.all.map(answer => answer.onDelete(event, quickButton, true)))
+			}else{
+				const askConfirmation = this.main.data.approvedAnswersCount > 0
+				if(askConfirmation && !confirm("Esta questão possui respostas aprovadas.\nVocê tem certeza que deseja eliminá-la?")) return Cancel()
+			}
+
+			const result = await DeleteQuestion(config)
 
 			if(!result.success) throw result.message || "Algo deu errado"
-
+			
 			this.quickButtons.container.remove()
 			this.main.questionContainer.querySelector(":scope > div > div:last-child").classList.add("solid-peach-light")
 			this.main.answersSections.all.forEach(answerSection => answerSection.quickButtons.container.remove())
 		}catch(error){
 			BrainlyEnhancer.Error(error)
-			this.isBusy = false
-		}finally{
 			quickButton.HideSpinner(target)
+		}finally{
+			this.isBusy = false
 		}
 	}
 }
