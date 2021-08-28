@@ -1,21 +1,12 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import type {
 	GenericResponseBrainly,
-	Presence,
-	QuestionMainViewAnswerData,
-	QuestionMainViewQuestionData,
 	BrainlyActionData,
 	GetUserByIdData,
-	UserContentQuery
+	UserContentQuery,
+	GetAnswersByIdResponse,
+	BrainlyResponseMainView
 } from "../../typings/brainly"
-
-export interface BrainlyResponseMainView extends GenericResponseBrainly {
-	data: {
-		presence: Presence
-		responses: QuestionMainViewAnswerData[]
-		task: QuestionMainViewQuestionData
-	}
-}
 
 function GetModeratorURL(pathname: string){
 	const url = new URL(location.origin + pathname)
@@ -72,7 +63,7 @@ export function ExpireTicket(taskId: number){
 
 async function Delete(url: string, data: BrainlyActionData, config?: AxiosRequestConfig){
 	const result = await RequestAction(url, data, config)
-	if(result.success) setTimeout(() => ExpireTicket(data.taskId), 1000)
+	if(result.success) setTimeout(() => ExpireTicket(data.taskId), 300)
 	return result
 }
 
@@ -149,29 +140,29 @@ async function GetContentQuery(userId: number, type: "questions" | "answers", ha
 		return response.data.data.userById[type]
 	}
 
-	return new Promise<number[]>(async resolve => {
-		const allContent = new Array as number[]
+	const allContent = new Array as number[]
 
-		while(config.canRequest){
-			if(allContent.length) await new Promise(resolve => setTimeout(resolve, delay))
+	while(config.canRequest){
+		if(allContent.length) await new Promise(resolve => setTimeout(resolve, delay))
 
-			const data = await GetData(config.url.href, config.before)
-	
-			data.edges.forEach(edge => {
-				const id: number = type === "questions" ? edge.node.databaseId : edge.node.question.databaseId
-				
-				if(!allContent.includes(id)){
-					allContent.push(id)
-					if(callback) callback(id)
-				}
-			})
-	
-			config.canRequest = data.pageInfo.hasNextPage
-			config.before = data.pageInfo.endCursor
-		}
+		const data = await GetData(config.url.href, config.before).catch(BrainlyEnhancer.log)
 
-		resolve(allContent)
-	})
+		if(!data) break
+
+		data.edges.forEach(edge => {
+			const id: number = type === "questions" ? edge.node.databaseId : edge.node.question.databaseId
+			
+			!allContent.includes(id) && (
+				allContent.push(id),
+				callback?.(id)
+			)
+		})
+
+		config.canRequest = data.pageInfo.hasNextPage
+		config.before = data.pageInfo.endCursor
+	}
+
+	return allContent
 }
 
 /** Returns `undefined` if the answer was not found */
@@ -180,7 +171,76 @@ export async function GetAnswerIdByTask(userId: number, questionId: number){
 	return request.data.data.responses.find(answer => answer.user_id === userId)?.id
 }
 
+async function GetAnswersUsingOldApi(userId: number, callback?: (id: number) => any, delay: number = 300){
+	const requestPage = (page: number) => Request<GetAnswersByIdResponse>(`/api/28/api_responses/get_by_user?userId=${userId}&page=${page}&limit=100`)
+
+	const config: {
+		currentPage: number
+		lastPage?: number
+		hasFinished: boolean
+		allAnswers: number[]
+	} = {
+		currentPage: 1,
+		hasFinished: false,
+		allAnswers: new Array
+	}
+
+	while(!config.hasFinished){
+		const response = await requestPage(config.currentPage)
+
+		if(response?.status !== 200) throw new Error("Error using old API, trying to use fallback")
+
+		if(response?.data?.success){
+			const { data, pagination } = response.data
+
+			if(!config.lastPage){
+				const url = new URL(pagination.last)
+				const lastPage = Number(url.searchParams.get("page"))
+
+				// The user has no answers
+				if(lastPage === 0) break
+
+				config.lastPage = lastPage
+			}
+
+			data.forEach(answer => !config.allAnswers.includes(answer.id) && (
+				config.allAnswers.push(answer.id),
+				callback?.(answer.id)
+			))
+
+			config.currentPage === config.lastPage ? config.hasFinished = true : (
+				config.currentPage++,
+				await new Promise(resolve => setTimeout(resolve, delay))
+			)
+		}
+	}
+}
+
 export async function GetAllAnswers(userId: number, callback?: (id: number) => any, delay: number = 300){
+	const _oldApi: {
+		allAnswers: number[]
+		isSucess?: boolean
+	} = {
+		allAnswers: new Array
+	}
+
+	await new Promise<void>(resolve => {
+		GetAnswersUsingOldApi(userId, answerId => {
+			_oldApi.allAnswers.push(answerId)
+			callback?.(answerId)
+		}, delay).then(() => {
+			_oldApi.isSucess = true
+		})
+		.catch(error => {
+			_oldApi.isSucess = false
+			BrainlyEnhancer.log(error)
+		})
+		.finally(resolve)
+	})
+
+	if(_oldApi.isSucess) return _oldApi.allAnswers
+
+	// If the old api failed, fallback to this
 	const config: {
 		canLoop: boolean
 		hasFinished: boolean
@@ -216,7 +276,7 @@ export async function GetAllAnswers(userId: number, callback?: (id: number) => a
 
 			if(answerId && !config.allAnswers.includes(answerId)){
 				config.allAnswers.push(answerId)
-				if(callback) callback(answerId)
+				if(!_oldApi.allAnswers.includes(answerId)) callback?.(answerId)
 			}
 		}
 

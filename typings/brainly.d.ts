@@ -366,6 +366,16 @@ interface MainViewQuestionSettings extends MainViewSettings {
 	is_following: boolean
 }
 
+type Approver = {
+	avatars: Avatar
+	content_approved_count: number
+	gender: number
+	grade: number
+	id: number
+	nickname: string
+	points: number
+}
+
 type Approved = {
 	date?: string
 	approver?: Approver
@@ -440,7 +450,6 @@ export type AnswerDataType = {
 	approved: Approved
 	comments: Comments
 }
-  
 
 export type QuestionDataType = {
 	id: number
@@ -524,12 +533,6 @@ export interface QuestionMainViewQuestionData {
 	comments: Comments
 }
 
-export interface QuestionMainViewData {
-	task: QuestionMainViewQuestionData
-	responses: QuestionMainViewAnswerData[]
-	presence: Presence
-}
-
 export interface GenericResponseBrainly {
 	success: boolean
 	message?: string
@@ -541,6 +544,20 @@ export interface GenericResponseBrainly {
 	impl: string
 	protocol: "28"
 	schema: string
+}
+
+export interface QuestionMainViewData {
+	task: QuestionMainViewQuestionData
+	responses: QuestionMainViewAnswerData[]
+	presence: Presence
+}
+
+export interface BrainlyResponseMainView extends GenericResponseBrainly {
+	data: {
+		presence: Presence
+		responses: QuestionMainViewAnswerData[]
+		task: QuestionMainViewQuestionData
+	}
 }
 
 export type BrainlyActionData = {
@@ -624,53 +641,49 @@ type Subject = {
 	__typename: "Subject"
 }
 
-interface UserAnswersQuery extends UserContentQuerySettings {
-	edges: {
-		node: {
-			attachments: any[]
-			author: GraphQLAuthor
+interface UserAnswersEdge {
+	node: {
+		attachments: any[]
+		author: GraphQLAuthor
+		content: string
+		created: string
+		isBest: boolean
+		isConfirmed: boolean
+		question: {
 			content: string
-			created: string
-			isBest: boolean
-			isConfirmed: boolean
-			question: {
-				content: string
-				databaseId: number
-				grade: Grade
-				subject: Subject
-				__typename: "Question"
-			}
-			ratesCount: number
-			rating: number
-			thanksCount: number
-			__typename: "Answer"
-		}
-		__typename: "AnswerEdge"
-	}[]
-}
-
-interface UserQuestionsQuery extends UserContentQuerySettings {
-	edges: {
-		node: {
-			answers: {
-				nodes: {
-					author: GraphQLAuthor
-					__typename: "Answer"
-				}[]
-				__typename: "AnswerConnection"
-			}
-			attachments: any[]
-			author: GraphQLAuthor
-			canBeAnswered: boolean
-			content: string
-			created: string
 			databaseId: number
 			grade: Grade
 			subject: Subject
 			__typename: "Question"
 		}
-		__typename: "QuestionEdge"
-	}[]
+		ratesCount: number
+		rating: number
+		thanksCount: number
+		__typename: "Answer"
+	}
+	__typename: "AnswerEdge"
+}
+
+interface UserQuestionsEdge {
+	node: {
+		answers: {
+			nodes: {
+				author: GraphQLAuthor
+				__typename: "Answer"
+			}[]
+			__typename: "AnswerConnection"
+		}
+		attachments: any[]
+		author: GraphQLAuthor
+		canBeAnswered: boolean
+		content: string
+		created: string
+		databaseId: number
+		grade: Grade
+		subject: Subject
+		__typename: "Question"
+	}
+	__typename: "QuestionEdge"
 }
 
 interface UserContentQuerySettings {
@@ -685,8 +698,12 @@ interface UserContentQuerySettings {
 interface UserContentQuery extends GenericResponseBrainly {
 	data: {
 		userById: {
-			questions?: UserQuestionsQuery
-			answers?: UserAnswersQuery
+			questions?: {
+				edges: UserQuestionsEdge[]
+			} & UserContentQuerySettings
+			answers?: {
+				edges: UserAnswersEdge[]
+			} & UserContentQuerySettings
 			__typename: "User"
 		}
 	}
