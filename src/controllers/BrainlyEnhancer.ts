@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import defaultReasons from "../../public/database/DefaultReasons.json"
-import { waitObject } from "../helpers"
+import { getStorage, setStorage, waitObject } from "../helpers"
 import isNumber from "../helpers/isNumber"
 
 type QuickButtonsReasons = {
@@ -25,7 +25,6 @@ type BrainlyReasonSubcategory = {
 
 class BrainlyEnhancer {
 	quickButtonsReasons: {
-		fetched: boolean
 		promise?: Promise<any>
 		answers: QuickButtonsReasons[]
 		questions: QuickButtonsReasons[]
@@ -37,38 +36,42 @@ class BrainlyEnhancer {
 
 	constructor(){
 		this.quickButtonsReasons = {
-			fetched: false,
 			answers: defaultReasons.response,
 			questions: defaultReasons.task
 		}
 	}
 	async FetchReasons(){
-		if(this.quickButtonsReasons.fetched) return await this.quickButtonsReasons.promise
-		this.quickButtonsReasons.fetched = true
+		if(this.quickButtonsReasons.promise) return await this.quickButtonsReasons.promise
 
 		return this.quickButtonsReasons.promise = new Promise<void>(async (resolve, reject) => {
+			const storage = await getStorage("QuickButtonsReasons", "local")
+
+			if(storage){
+				this.setDeleteReasonsDetails("questions", false, storage)
+				this.setDeleteReasonsDetails("answers", false, storage)
+				return resolve()
+			}
+
 			const response = await axios.post(`${location.origin}/api/28/moderation_new/get_content`, {
 				model_id: jsData.question.databaseId,
 				model_type_id: 1
 			}).catch(reject)
 
 			if(!response || !response.data?.data) return
-			this.setDeleteReasonsDetails(response, "questions")
-			this.setDeleteReasonsDetails(response, "answers")
+			await setStorage("QuickButtonsReasons", response.data.data.delete_reasons, "local")
+			this.setDeleteReasonsDetails("questions", true, response)
+			this.setDeleteReasonsDetails("answers", true, response)
 			resolve()
 		})
 	}
-	private setDeleteReasonsDetails(
-		response: AxiosResponse,
-		type: "questions" | "answers"
-	){
-		const { delete_reasons }: {
-			delete_reasons: {
-				comment: BrainlyReasonCategory[]
-				response: BrainlyReasonCategory[]
-				task: BrainlyReasonCategory[]
-			}
-		} = response.data.data
+	private setDeleteReasonsDetails(type: "questions" | "answers", isAxios: false, response: object): void
+	private setDeleteReasonsDetails(type: "questions" | "answers", isAxios: true, response: AxiosResponse): void
+	private setDeleteReasonsDetails(type: "questions" | "answers", isAxios: boolean, response: AxiosResponse){
+		const delete_reasons: {
+			comment: BrainlyReasonCategory[]
+			response: BrainlyReasonCategory[]
+			task: BrainlyReasonCategory[]
+		} = isAxios ? response.data.data.delete_reasons : response
 	
 		const BrainlyType = type === "questions" ? "task" : "response"
 	
@@ -83,16 +86,7 @@ class BrainlyEnhancer {
 				}))
 			})
 	
-			if(!match){
-				console.error([
-					delete_reasons[BrainlyType],
-					reason.category,
-					delete_reasons[BrainlyType].find(category => category.id === reason.category),
-					delete_reasons[BrainlyType].find(category => category.id === reason.category)?.subcategories.find(subcategory => subcategory.id === reason.subCategory)
-				])
-				
-				throw new Error(`Could not find delete reason for ${type}`)
-			}
+			if(!match) throw new Error(`Could not find delete reason for ${type}`)
 		}
 	}
 	checkPrivileges(...ids: number[]){

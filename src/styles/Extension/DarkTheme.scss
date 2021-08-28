@@ -253,38 +253,44 @@ html.dark{
 			color: var(--grey-text-color);
 		}
 
-		.toplayer-body > .moderation-{
-			&task,
-			&response{
-				&.reported{
-					> .contents > .boxxy.text{
-						background-color: var(--background-color);
-					}
-				}
-
-				.rank{
-					color: var(--red-text-color-light);
-				}
-
-				> .contents .boxxy{
-					background-color: var(--background-color-light);
-	
-					&.action-box .line{
-						color: var(--text-color);
-					}
-	
-					.body .nick{
-						&,
-						> a{
-							color: var(--grey-text-color);
+		.toplayer-body{
+			.moderation-{
+				&task,
+				&response{
+					&.reported{
+						> .contents > .boxxy.text{
+							background-color: var(--background-color);
 						}
 					}
-	
-					.text-reason{
-						background-color: var(--background-color);
-						color: var(--text-color);
-						border: none;
+
+					.rank{
+						color: var(--red-text-color-light);
 					}
+
+					.moderation-comments .moderation-comment.removed .boxxy.text{
+						background-color: var(--red-warn-color);
+					}
+				}
+			}
+
+			.contents .boxxy{
+				background-color: var(--background-color-light);
+
+				&.action-box .line{
+					color: var(--text-color);
+				}
+
+				.body .nick{
+					&,
+					> a{
+						color: var(--grey-text-color);
+					}
+				}
+
+				.text-reason{
+					background-color: var(--background-color);
+					color: var(--text-color);
+					border: none;
 				}
 			}
 		}
@@ -1273,5 +1279,9 @@ html.dark{
 
 	.sg-select:hover .sg-select__element{
 		background-color: var(--background-color-blue-light);
+	}
+
+	[class*="CustomAchievementBadge"] .sg-subject-icon.sg-subject-icon--gray{
+		fill: #272e35;
 	}
 }
