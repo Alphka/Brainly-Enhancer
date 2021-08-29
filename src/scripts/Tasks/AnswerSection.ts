@@ -66,7 +66,12 @@ export default class AnswerSection {
 			return await Delete({
 				...config,
 				reason: quickButton.reasonText
-			}).finally(() => this.isBusy = false)
+			}).finally(() => {
+				// Hide spinners if some error happened
+				this.quickButtons.buttons.forEach(button => button.HideSpinner(button.element))
+
+				this.isBusy = false
+			})
 		}
 		
 		const target = event.target as HTMLElement

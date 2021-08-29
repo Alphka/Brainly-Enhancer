@@ -34,6 +34,9 @@ export default class QuickButton {
 		this.element.classList.add(...config.className.split(" "))
 
 		this.element.addEventListener("click", event => {
+			// Prevent two clicks
+			if(main.main.isBusy) return
+
 			main.main.isBusy = true
 			main.main.onDelete.call(main.main, event, this)
 		})
@@ -45,7 +48,7 @@ export default class QuickButton {
 	}
 	RenderSpinner(target: HTMLElement){
 		const { span } = this.GetButtonText(target)
-		span.dataset.text = span.textContent
+		if(!span.dataset.text) span.dataset.text = span.textContent
 		span.textContent = ""
 		span.classList.remove("sg-text")
 		span.classList.add("sg-spinner", "sg-spinner--white", "sg-spinner--xsmall")
@@ -53,7 +56,6 @@ export default class QuickButton {
 	HideSpinner(target: HTMLElement){
 		const { span } = this.GetButtonText(target)
 		span.textContent = span.dataset.text
-		span.removeAttribute("data-text")
 		span.classList.remove("sg-spinner", "sg-spinner--white", "sg-spinner--xsmall")
 		span.classList.add("sg-text")
 	}

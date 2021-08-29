@@ -65,8 +65,16 @@ export default class QuestionSection {
 			}else if(event.shiftKey){
 				const deleteAnswers = confirm("Você deseja eliminar todas as respostas desta pergunta?")
 
-				// Run two requests at once, but wait for them to finish
-				if(deleteAnswers) await Promise.allSettled(this.main.answersSections.all.map(answer => answer.onDelete(event, quickButton, true)))
+				// if(this.main.answersSections.all.length > 2)
+				console.log(this.main.answersSections)
+
+				if(deleteAnswers) for(const answer of this.main.answersSections.all){
+					await this.main.answersSections.byId[answer.extraDetails.databaseId]
+						.onDelete(event, quickButton, true)
+						.catch(BrainlyEnhancer.Error)
+					
+					await new Promise(resolve => setTimeout(resolve, 100))
+				}
 			}else{
 				const askConfirmation = this.main.data.approvedAnswersCount > 0
 				if(askConfirmation && !confirm("Esta questão possui respostas aprovadas.\nVocê tem certeza que deseja eliminá-la?")) return Cancel()

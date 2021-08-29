@@ -90,12 +90,12 @@ class BrainlyEnhancer {
 		}
 	}
 	checkPrivileges(...ids: number[]){
-		if(!window.dataLayer?.[0].user.isLoggedIn) return false
+		if(!window.dataLayer?.[0]?.user.isLoggedIn) return false
 		if(!window.__default_config?.user?.ME) throw new Error("User data is not defined")
 		return ids.length && ids.filter(id => JSON.parse(__default_config.user.ME).privileges.includes(id)).length === ids.length
 	}
-	Error(message: string){
-		this.log(message)
+	Error(message: any){
+		window.BrainlyEnhancer.log(message instanceof Error ? message : new Error(String(message)))
 	}
 	log(...args: any[]){
 		if(!args || !args.length) return
@@ -145,7 +145,7 @@ class BrainlyEnhancer {
 	}
 	get isLogged(){
 		return new Promise<boolean>(async resolve => {
-			if(!window.dataLayer) await waitObject("window.dataLayer")
+			if(!window.dataLayer?.[0]) await waitObject(`Object.prototype.toString.call(window.dataLayer) === "[object Array]"`)
 			resolve(window.dataLayer[0].user.isLoggedIn)
 		})
 	}

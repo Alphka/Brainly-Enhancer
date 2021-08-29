@@ -98,7 +98,7 @@ export async function GetUsersById(...ids: (string | number)[]){
 	const { data } = response
 
 	if(!data.success) throw data.message || "Algo deu errado"
-	return <GetUserByIdData[]>data.data
+	return data.data as GetUserByIdData[]
 }
 
 async function GetContentQuery(userId: number, type: "questions" | "answers", hash: string, callback?: (id: number) => any, delay: number = 300){
