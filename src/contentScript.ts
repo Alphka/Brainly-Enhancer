@@ -57,7 +57,8 @@ class ContentScript {
 
 		if(this.TestPathname("messages")) this.InsertScript("Messages")
 		if(this.TestPathname(brainlyDetails[hostname].question)) this.InsertScript("Tasks")
-
+		if(this.TestPathname("moderation_new", "view_moderator")) this.InsertScript("Actions")
+		
 		waitElement("html#html", {
 			expires: 9000,
 			noError: true
