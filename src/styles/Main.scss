@@ -155,4 +155,27 @@ div.brn-ads-box{
 	margin: 0;
 }
 
+.brn-qpage-next-question-activity-list__item{
+	word-break: break-word;
+}
+
+div.tasksPagination div.numbers{
+	background-color: rgba(0, 0, 0, 0.4);
+	padding: 5px 23px 0;
+	position: fixed;
+	bottom: 0;
+
+	> .text{
+		color: white;
+	}
+
+	> span:not(.current) > a{
+		background-color: rgba(0, 0, 0, 0.8);
+
+		:hover{
+			background-color: rgb(0, 0, 0);
+		}
+	}
+}
+
 @import "./Extension/*";
