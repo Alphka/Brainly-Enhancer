@@ -95,6 +95,21 @@ body{
 				> .submit{
 					margin: 0 auto 10px;
 					padding: 0;
+
+					> input{
+						border: 1px solid #0081b1;
+						background-color: black;
+						color: #c7c7c7;
+						font-weight: 400;
+						box-shadow: 0 0 11px 0 rgb(75 139 255 / 70%);
+						transition: all .3s ease;
+
+						&:hover{
+							border-color: rgb(144, 0, 0);
+							color: white;
+							box-shadow: 0 0 10px 0 rgb(255 70 40 / 70%);
+						}
+					}
 				}
 
 				#DelUserReasons{
@@ -128,6 +143,8 @@ body{
 			}
 
 			#UserBanAddForm{
+				margin-bottom: 10px;
+
 				.mint-select{
 					height: auto;
 				}

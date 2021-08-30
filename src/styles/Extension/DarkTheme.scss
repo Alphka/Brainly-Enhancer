@@ -267,6 +267,10 @@ html.dark{
 			.moderation-{
 				&task,
 				&response{
+					.rank{
+						color: var(--red-text-color-light);
+					}
+
 					&.reported > .contents > .boxxy.text{
 						background-color: var(--background-color);
 					}
@@ -275,12 +279,12 @@ html.dark{
 						background-color: var(--red-warn-color);
 					}
 
-					.rank{
-						color: var(--red-text-color-light);
-					}
-
 					.moderation-comments .moderation-comment.removed .boxxy.text{
 						background-color: var(--red-warn-color);
+					}
+
+					.moderation-comments .moderation-comment.reported .boxxy.text{
+						background-color: var(--mustard-warn-color);
 					}
 				}
 			}
@@ -609,11 +613,12 @@ html.dark{
 	.sg-button--solid:active:not([disabled]),
 	.sg-button--solid:active:focus:not([disabled]),
 	.mint-tabs__tab--active,
-	.game-box__button:active
-	.game-box__button:focus
+	.game-box__button:active,
+	.game-box__button:focus,
 	.game-box__button:hover,
 	.main-header--sticky,
-	.columns--filled:after{
+	.columns--filled:after,
+	.sg-label--lavender-secondary-light{
 		background-color: var(--background-color-blue);
 	}
 

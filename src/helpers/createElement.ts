@@ -10,7 +10,7 @@ export type CreateElementOptions = {
 	type?: string
 	class?: string
 	id?: string
-	children?: HTMLElement[]
+	children?: Element[]
 }
 
 function createElement<T extends keyof HTMLElementTagNameMap>(tagName: T, options?: CreateElementOptions): HTMLElementTagNameMap[T]

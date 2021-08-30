@@ -4,11 +4,8 @@ export default class ExtendedMessagesLayout {
 	constructor(){
 		this.style = document.createElement("style")
 		this.updateStyle()
-
-		document.head.appendChild(this.style)
-	}
-	listen(){
 		window.addEventListener("resize", this.updateStyle.bind(this))
+		document.head.appendChild(this.style)
 	}
 	updateStyle(){
 		const innerHeight = window.innerHeight
@@ -47,6 +44,6 @@ export default class ExtendedMessagesLayout {
 					border-radius: 0!important;
 				}
 			}
-		`
+		`.replace(/[\n\t\r]+/g, "")
 	}
 }

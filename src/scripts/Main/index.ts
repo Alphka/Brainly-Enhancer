@@ -72,6 +72,7 @@ class Main {
 		setLocalStorage("registration-toplayer/expires", String(Date.now() + 3.6e6))
 		setLocalStorage("registration-toplayer/cursor", "0")
 		setLocalStorage("spotlight-notifications/achievements", "\"dismissed\"")
+		setLocalStorage("spotlight-notifications/achievements-badges", "\"dismissed\"")
 	
 		Object.getOwnPropertyNames(localStorage).forEach(name => name.includes("funnel") && localStorage.removeItem(name))
 	}
