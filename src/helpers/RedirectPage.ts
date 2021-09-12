@@ -1,6 +1,6 @@
 export default function RedirectPage(url: string, page: number, event: KeyboardEvent){
 	let isReplaced: boolean
-	
+
 	const Replace = (page: number | string) => {
 		url = url.replace("<PageNumber>", String(page))
 		isReplaced = true

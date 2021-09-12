@@ -12,7 +12,7 @@ export default class QuestionPage {
 		all: AnswerSection[]
 		byId: { [id: number]: AnswerSection }
 	}
-	
+
 	constructor(){
 		this.answersSections = {
 			containers: [],
@@ -38,7 +38,7 @@ export default class QuestionPage {
 		}catch(error){
 			console.error(error)
 		}
-	}	
+	}
 	InitSections(){
 		if(BrainlyEnhancer.checkPrivileges(1)){
 			this.questionSection = new QuestionSection(this)
@@ -53,7 +53,7 @@ export default class QuestionPage {
 		this.answersSections.containers = Array.from(await waitElement(".js-question-answers > div > div[class*=empty]", {
 			multiple: true
 		})) as HTMLDivElement[]
-	
+
 		await waitObject("window.jsData")
 
 		this.answersSections.containers.find(container => {
@@ -61,21 +61,22 @@ export default class QuestionPage {
 			const rating = Math.floor(Number(headerAttributes.querySelector(":scope > div:first-child > .sg-text")?.textContent.split("/")[0]))
 			const thanks = Number(headerAttributes.querySelector(":scope > div:last-child > .sg-text")?.textContent.split("/")[0])
 			const nick = container.querySelector(".brn-qpage-next-answer-box-author > .brn-qpage-next-answer-box-author__description > div:first-child > span")?.textContent
-			
+
 			const match = jsData.question.answers.find(answer => {
-				if(nick && answer.user.nick === nick) return true
+				// This will not work for deleted accounts...
+				return nick && answer.user.nick === nick
 				return rating === Math.floor(answer.rating) && thanks === answer.thanks
 			})
 
 			if(match){
 				const answersSections = new AnswerSection(this, match)
-	
+
 				answersSections.mainContainer = container
 				answersSections.Init()
-	
+
 				this.answersSections.byId[match.databaseId] = answersSections
 				this.answersSections.all.push(answersSections)
-			}else BrainlyEnhancer.log({
+			}else BrainlyEnhancer.log("Matching error:", {
 				rating,
 				thanks,
 				nick,
@@ -100,7 +101,7 @@ export default class QuestionPage {
 				if(mutation.target.classList.contains("js-react-answers")) return this.answersSections.all.forEach(answerSection => answerSection.Init())
 			})
 		})
-		
+
 		observer.observe(mainContent, {
 			childList: true,
 			subtree: true

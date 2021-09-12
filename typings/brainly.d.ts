@@ -322,11 +322,17 @@ type Solved = {
 	avatar: string
 }
 
+type Ticket = {
+	avatar: string
+	id: number
+	nick: string
+}
+
 type Presence = {
 	observing: any[]
 	answering: any[]
 	solved: Solved[]
-	tickets: any[]
+	tickets: Ticket[]
 }
 
 interface MainViewSettings {
@@ -474,7 +480,7 @@ export type QuestionDataType = {
 	approvedAnswersCount: number
 	isAnswerButton: boolean
 	canEdit: boolean
-	tickets: any[]
+	tickets: Ticket[]
 }
 
 export interface myData {

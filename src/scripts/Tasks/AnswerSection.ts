@@ -1,8 +1,7 @@
 import type { AnswerDetails, BrainlyActionData } from "../../../typings/brainly"
-import { DeleteAnswer } from "../../controllers/BrainlyRequest"
 import type QuestionPage from "./QuestionPage"
-import type QuickButton from "./QuickButtons/QuickButton"
-import QuickButtonsForAnswers from "./QuickButtons/QuickButtonsForAnswers"
+import { DeleteAnswer } from "../../controllers"
+import { QuickButtonsForAnswers, QuickButton } from "./QuickButtons"
 
 export default class AnswerSection {
 	main: QuestionPage
@@ -51,7 +50,7 @@ export default class AnswerSection {
 			const result = await DeleteAnswer(options)
 
 			if(!result.success) throw result.message || "Algo deu errado"
-			
+
 			this.quickButtons.container.remove()
 			this.mainContainer.lastElementChild.classList.add("solid-peach-light")
 		},
@@ -59,7 +58,7 @@ export default class AnswerSection {
 			model_id: this.data.databaseId,
 			taskId: this.main.data.id
 		} as BrainlyActionData
-		
+
 		if(isQuestion){
 			this.quickButtons.buttons.forEach(button => button.RenderSpinner(button.element))
 
@@ -73,7 +72,7 @@ export default class AnswerSection {
 				this.isBusy = false
 			})
 		}
-		
+
 		const target = event.target as HTMLElement
 		const Cancel = () => {
 			this.isBusy = false

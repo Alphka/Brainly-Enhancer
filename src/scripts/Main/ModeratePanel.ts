@@ -11,7 +11,7 @@ const ModeratePanel = (function(){
 
 		return promise = new Promise<void>(async resolve => {
 			isOldLayout = document.documentElement.id === "html"
-	
+
 			if(isOldLayout){
 				BrainlyMenuContainer = <HTMLDivElement>await waitElement("#moderate-functions-panel > .panel > .content-scroll")
 				MenuList = <HTMLUListElement>await waitElement("#moderate-functions > ul", {

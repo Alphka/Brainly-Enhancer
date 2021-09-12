@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
+
 import type {
 	GenericResponseBrainly,
 	BrainlyActionData,
@@ -93,7 +94,7 @@ export function DeleteAnswer(data: BrainlyActionData, config?: AxiosRequestConfi
 export async function GetUsersById(...ids: (string | number)[]){
 	const url = new URL(location.origin + "/api/28/api_users/get_by_id")
 	ids.forEach(id => url.searchParams.append("id[]", String(id)))
-	
+
 	const response = await Request(url.pathname + url.search)
 	const { data } = response
 
@@ -129,7 +130,7 @@ async function GetContentQuery(userId: number, type: "questions" | "answers", ha
 
 	const GetData = async (apiUrl: string, before: string = null) => {
 		const url = new URL(apiUrl)
-		
+
 		url.searchParams.append("variables", JSON.stringify({
 			userId,
 			before
@@ -151,7 +152,7 @@ async function GetContentQuery(userId: number, type: "questions" | "answers", ha
 
 		data.edges.forEach(edge => {
 			const id: number = type === "questions" ? edge.node.databaseId : edge.node.question.databaseId
-			
+
 			!allContent.includes(id) && (
 				allContent.push(id),
 				callback?.(id)
@@ -282,7 +283,7 @@ export async function GetAllAnswers(userId: number, callback?: (id: number) => a
 
 		if(config.hasFinished && !config.allQuestions.length) config.canLoop = false
 	}
-	
+
 	return config.allAnswers
 }
 

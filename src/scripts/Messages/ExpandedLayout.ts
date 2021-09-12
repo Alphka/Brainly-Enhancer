@@ -33,7 +33,7 @@ export default class ExtendedMessagesLayout {
 					padding: 0;
 				}
 			}
-			
+
 			.js-page-wrapper > .sg-layout > .sg-layout__container{
 				max-width: unset;
 				margin: 0!important;

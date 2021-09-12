@@ -1,7 +1,7 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import defaultReasons from "../../public/database/DefaultReasons.json"
-import { getStorage, setStorage, waitObject } from "../helpers"
-import isNumber from "../helpers/isNumber"
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
+import { getStorage, setStorage, waitObject, isNumber } from "../helpers"
+import { ExpireTicket } from "."
 
 type QuickButtonsReasons = {
 	category: number
@@ -57,6 +57,8 @@ class BrainlyEnhancer {
 				model_type_id: 1
 			}).catch(reject)
 
+			ExpireTicket(jsData.question.databaseId).catch(this.Error.bind(this))
+
 			if(!response || !response.data?.data) return
 			await setStorage("QuickButtonsReasons", response.data.data.delete_reasons, "local")
 			this.setDeleteReasonsDetails("questions", true, response)
@@ -72,9 +74,9 @@ class BrainlyEnhancer {
 			response: BrainlyReasonCategory[]
 			task: BrainlyReasonCategory[]
 		} = isAxios ? response.data.data.delete_reasons : response
-	
+
 		const BrainlyType = type === "questions" ? "task" : "response"
-	
+
 		for(const reason of this.quickButtonsReasons[type]){
 			const match = delete_reasons[BrainlyType].find(category => {
 				if(category.id !== reason.category) return
@@ -85,7 +87,7 @@ class BrainlyEnhancer {
 					return true
 				}))
 			})
-	
+
 			if(!match) throw new Error(`Could not find delete reason for ${type}`)
 		}
 	}
@@ -99,7 +101,7 @@ class BrainlyEnhancer {
 	}
 	log(...args: any[]){
 		if(!args || !args.length) return
-		
+
 		args.every(arg => typeof arg === "string")
 			? console.log("%c" + args.join(" "), "color: #3371ff; font-size:15px;")
 			: args.every(arg => arg instanceof Error)
@@ -110,7 +112,7 @@ class BrainlyEnhancer {
 		const _url = new URL(url)
 		_url.searchParams.append("client", "moderator-extension")
 		url = _url.href
-		
+
 		if(method === "GET") return (await axios.get(url, config)).data
 		else if(method === "POST") return (await axios.post(url, data, config)).data
 		else throw new Error("Method not allowed: " + method)
@@ -154,10 +156,10 @@ class BrainlyEnhancer {
 			if(!(await this.isLogged)) return false
 
 			await waitObject(`document.querySelector("meta[name=user_data]") || document.querySelector("#moderate-functions-panel")`)
-	
+
 			const moderatePanel = document.querySelector("#moderate-functions-panel") as HTMLDivElement
 			const userDataElement = document.querySelector("meta[name=user_data]") as HTMLMetaElement
-			
+
 			if(userDataElement?.content) resolve(JSON.parse(userDataElement.content).isModerator)
 			else if(moderatePanel) resolve(true)
 			else resolve(false)

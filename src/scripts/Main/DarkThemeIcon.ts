@@ -19,11 +19,11 @@ export default class DarkTheme {
 					})
 				]
 			})
-			
+
 			document.head.appendChild(createElement("style", {
 				innerHTML: `.menu-element > a[data-track="brainly-enhancer-dark-theme-icon"]::before{background-image: url(${this.image});}`
 			}))
-	
+
 			this.container = <HTMLUListElement>(await waitElement(".mint-header__right.mint-hide-for-mobile.menu-right > ul.menu-list"))
 			this.container.firstElementChild.before(li)
 		}else{
@@ -55,7 +55,7 @@ export default class DarkTheme {
 			this.container = <HTMLDivElement>(await waitElement("div[class*=HeaderController__childrenWrapper] > div > div:nth-of-type(2) > div"))
 			this.container.firstElementChild?.before(div)
 		}
-	
+
 		this.element.addEventListener("click", this.listener.bind(this))
 	}
 	listener(e: Event){
@@ -63,7 +63,7 @@ export default class DarkTheme {
 
 		if(this.isBusy) return
 		this.isBusy = true
-		
+
 		return new Promise<boolean>(resolve => {
 			window.addEventListener("darkThemeChanged", (event: CustomEvent) => {
 				if(!event.detail.success) BrainlyEnhancer.Error("Algo deu errado")

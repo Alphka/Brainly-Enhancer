@@ -42,7 +42,7 @@ export default class FastReply {
 		byId: { [id: string]: CreatedSVG },
 		all: CreatedSVG[]
 	}
-	
+
 	constructor(){
 		this.storageKey = "BrainlyEnhancerFastReply"
 		this.textarea = {}
@@ -120,7 +120,7 @@ export default class FastReply {
 			message = icon.GetMessage()
 		}else{
 			const id = icon.getAttribute("xlink:href").substr(1).split("-")[1]
-			
+
 			if(event.shiftKey) return this.OpenTextarea(id)
 
 			message = this.GetStorage(id) as string
@@ -229,7 +229,7 @@ export default class FastReply {
 			const checkIcon = this.CreateSVG("icon-check", {
 				containerClassName: "be-check-icon"
 			})
-			
+
 			this.textarea.submitButton.after(checkIcon)
 
 			setTimeout(() => {
@@ -244,7 +244,7 @@ export default class FastReply {
 					this.SetStorage("savedIcons", icons)
 					return this.AddCustomIcon(key as string)
 				}
-				
+
 				this.DeleteCustomIcon(key as string)
 				return this.HideTextarea()
 			}
@@ -286,7 +286,7 @@ export default class FastReply {
 			})
 
 			Object.getOwnPropertyNames(this.savedIcons).forEach(id => this.AddCustomIcon(id))
-	
+
 			this.iconPlus.addEventListener("click", e => {
 				if(this.iconPlus.classList.contains("maxlength")) return
 
@@ -329,7 +329,7 @@ export default class FastReply {
 		let isTooFast = false
 		icon.svg.addEventListener("mouseenter", e => {
 			if(isTooFast) return
-			
+
 			isTooFast = true
 			setTimeout(() => isTooFast = false, 1000)
 
@@ -437,7 +437,7 @@ export default class FastReply {
 		if(storage instanceof Object && length <= 3) return Object.setPrototypeOf(storage, {
 			length: Object.getOwnPropertyNames(storage).length
 		})
-		
+
 		const object = {}
 		return Object.setPrototypeOf(object, {length: 0})
 	}

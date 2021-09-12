@@ -1,9 +1,10 @@
 import { waitElement, DefaultReasons as _DefaultReasons } from "../../helpers"
+import ModerateAllQuickButtons from "./QuickButtons"
 import Toplayer from "./Toplayer"
 
 let isCloseListener = false
 
-async function TopLayerCallback(isOpened: boolean){
+export async function TopLayerCallback(isOpened: boolean){
 	if(!isOpened) return
 
 	if(!isCloseListener){
@@ -28,5 +29,4 @@ async function TopLayerCallback(isOpened: boolean){
 }
 
 new Toplayer(TopLayerCallback)
-
-export { TopLayerCallback }
+new ModerateAllQuickButtons()

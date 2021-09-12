@@ -1,4 +1,4 @@
-export const waitForBody = (function(){
+const waitForBody = (function(){
 	let promise: Promise<HTMLBodyElement>
 
 	return async function(){
@@ -7,3 +7,5 @@ export const waitForBody = (function(){
 		return await promise
 	}
 })()
+
+export default waitForBody

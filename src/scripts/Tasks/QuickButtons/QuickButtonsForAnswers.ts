@@ -33,7 +33,7 @@ export default class QuickButtonsForAnswers {
 				category: reason.category,
 				index
 			})
-			
+
 			this.buttons.push(button)
 			this.container.appendChild(button.element)
 		})

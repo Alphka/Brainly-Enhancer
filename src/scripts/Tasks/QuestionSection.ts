@@ -1,9 +1,9 @@
 import type { BrainlyActionData } from "../../../typings/brainly"
-import { DeleteAnswer, DeleteQuestion } from "../../controllers/BrainlyRequest"
-import { waitElement } from "../../helpers"
+import type { QuickButton } from "./QuickButtons"
 import type QuestionPage from "./QuestionPage"
-import type QuickButton from "./QuickButtons/QuickButton"
-import QuickButtonsForQuestions from "./QuickButtons/QuickButtonsForQuestions"
+import { QuickButtonsForQuestions } from "./QuickButtons"
+import { DeleteQuestion } from "../../controllers"
+import { waitElement } from "../../helpers"
 
 export default class QuestionSection {
 	main: QuestionPage
@@ -17,7 +17,7 @@ export default class QuestionSection {
 	}
 	async Init(){
 		if(this.isSearching) return
-		
+
 		await this.FindModerationContainer()
 
 		if(!this.main.data.is_deleted){
@@ -31,7 +31,7 @@ export default class QuestionSection {
 	}
 	async FindModerationContainer(){
 		this.isSearching = true
-	
+
 		this.moderationContainer = <HTMLDivElement>(await waitElement(`:scope > [class*=empty] > .sg-box > .sg-flex`, {
 			element: this.main.questionContainer
 		}))
@@ -55,7 +55,7 @@ export default class QuestionSection {
 			reason: quickButton.reasonText,
 			reason_id: quickButton.reasonId
 		} as BrainlyActionData
-		
+
 		try{
 			quickButton.RenderSpinner(target)
 
@@ -72,7 +72,7 @@ export default class QuestionSection {
 					await this.main.answersSections.byId[answer.extraDetails.databaseId]
 						.onDelete(event, quickButton, true)
 						.catch(BrainlyEnhancer.Error)
-					
+
 					await new Promise(resolve => setTimeout(resolve, 100))
 				}
 			}else{
@@ -83,7 +83,7 @@ export default class QuestionSection {
 			const result = await DeleteQuestion(config)
 
 			if(!result.success) throw result.message || "Algo deu errado"
-			
+
 			this.quickButtons.container.remove()
 			this.main.questionContainer.querySelector(":scope > div > div:last-child").classList.add("solid-peach-light")
 			this.main.answersSections.all.forEach(answerSection => answerSection.quickButtons.container.remove())

@@ -1,4 +1,4 @@
-import RedirectPage from "../../helpers/RedirectPage"
+import { RedirectPage } from "../../helpers"
 
 let isBusy: boolean
 
@@ -8,7 +8,7 @@ window.addEventListener("keydown", event => {
 	let userId = location.pathname.match(/(?<=\/)\d+/)?.[0],
 	url = location.href,
 	page = 1
-	
+
 	if(!userId) return
 
 	if(location.pathname.includes("/page:")){

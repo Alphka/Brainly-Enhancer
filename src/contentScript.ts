@@ -1,10 +1,9 @@
-import ext from "webextension-polyfill"
-import * as brainlyDetails from "../public/database/BrainlyDetails.json"
-import _BrainlyEnhancer from "./controllers/BrainlyEnhancer"
-import { createElement, waitElement, waitObject } from "./helpers"
-import type { BrainlyHostnames } from "../typings/brainly"
 import type { onMessageInformation } from "../typings/global"
-import { waitForBody } from "./helpers/waitForBody"
+import type { BrainlyHostnames } from "../typings/brainly"
+import { BrainlyEnhancer as _BrainlyEnhancer } from "./controllers"
+import { createElement, waitElement, waitObject } from "./helpers"
+import brainlyDetails from "../public/database/BrainlyDetails.json"
+import ext from "webextension-polyfill"
 
 let BrainlyEnhancer: _BrainlyEnhancer
 
@@ -31,7 +30,7 @@ class ContentScript {
 	}
 	async MessageHandler(message: onMessageInformation, sender: ext.Runtime.MessageSender){
 		const { action, data } = message
-		
+
 		if(action === "isContentScriptInjected") return Promise.resolve(true)
 	}
 	AwaitHead(){
@@ -49,7 +48,7 @@ class ContentScript {
 	InsertElements(){
 		const MainStyle = this.InsertStyle("Main")
 		const hostname = <BrainlyHostnames>location.hostname
-		
+
 		if(this.TestPathname("tasks", "archive_mod")){
 			this.InsertScript("ModerateAll")
 			this.InsertStyle("ModerateAll")
@@ -58,7 +57,7 @@ class ContentScript {
 		if(this.TestPathname("messages")) this.InsertScript("Messages")
 		if(this.TestPathname(brainlyDetails[hostname].question)) this.InsertScript("Tasks")
 		if(this.TestPathname("moderation_new", "view_moderator")) this.InsertScript("Actions")
-		
+
 		waitElement("html#html", {
 			expires: 9000,
 			noError: true
@@ -68,7 +67,7 @@ class ContentScript {
 			this.InsertStyle("StyleGuide")
 			this.InsertScript("images/icons.js", false)
 		})
-		
+
 		MainStyle.addEventListener("load", async () => {
 			const brainlyStyles = [
 				`link[href*="/sf/css/main]"`,
@@ -76,7 +75,7 @@ class ContentScript {
 			]
 
 			await waitObject(brainlyStyles.map(selector => `document.querySelector(${JSON.stringify(selector)})`).join(" || "))
-			
+
 			document.head.lastElementChild?.after(MainStyle)
 		})
 	}
@@ -109,9 +108,10 @@ class ContentScript {
 			href: external ? file : ext.runtime.getURL(`styles/${file}.css`),
 			rel: "stylesheet",
 			type: "text/css",
-			"data-added-by-extension": "true",
-			id
+			"data-added-by-extension": "true"
 		})
+
+		if(id) element.id = id
 
 		const mainStyle = document.querySelector(`link[data-added-by-extension="true"][href*=Main]`)
 
@@ -120,7 +120,7 @@ class ContentScript {
 			: document.head.lastElementChild
 			? document.head.lastElementChild.after(element)
 			: document.head.appendChild(element)
-			
+
 		return element
 	}
 	ToggleDarkTheme(setStorage = true){
@@ -128,7 +128,7 @@ class ContentScript {
 
 		if(setStorage){
 			const isDarkTheme = document.documentElement.classList.contains("dark")
-			
+
 			return new Promise<void>(resolve => chrome.runtime.sendMessage(BrainlyEnhancer.extension.id, {
 				action: "setDarkTheme",
 				data: Boolean(isDarkTheme)

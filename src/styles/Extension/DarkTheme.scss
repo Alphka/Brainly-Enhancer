@@ -563,7 +563,6 @@ html.dark{
 	#footer,
 	div[class^="HeaderController__subnav"],
 	div[class^="HeaderController__innerwrap"],
-	div[class*="ScrollablePanel__scrollable"]::-webkit-scrollbar-thumb,
 	header[class^="HeaderController"],
 	.brn-navigation-item--active,
 	.brn-navigation-item:hover,
@@ -629,7 +628,8 @@ html.dark{
 
 	.sg-box--border-color-gray-secondary-lightest,
 	.brn-feed-item-wrapper,
-	.columns__border:after{
+	.columns__border:after,
+	.UserActivity__tabsContainerSticky--3nt39{
 		border-color: var(--background-color-blue);
 	}
 
@@ -677,7 +677,8 @@ html.dark{
 	.brn-select-box,
 	.search--large--2SoJf,
 	.sg-bubble--mint-secondary-light,
-	.brn-tools__button--active{
+	.brn-tools__button--active,
+	.UserActivity__tabsContainerSticky--3nt39:before{
 		background: var(--background-color);
 	}
 
@@ -737,7 +738,6 @@ html.dark{
 	.sg-media--focused,
 	.sg-box--dark,
 	.cf-error-source:after,
-	.sg-label--gray-secondary-light,
 	.brn-answers-per-day__container,
 	.brn-qpage-next-answer-box-author__tooltip,
 	.brn-answers-per-day__container--empty,
@@ -758,7 +758,9 @@ html.dark{
 	.brn-answer-editor-layer__editor-box,
 	.brn-attachment-grabber,
 	.brn-tools__box,
-	.brn-tex__preview{
+	.brn-tex__preview,
+	.UserActivity__tabsContainerSticky--3nt39,
+	.ProgressTrackingPanel__container--19U20{
 		background-color: var(--background-color);
 	}
 
@@ -809,7 +811,9 @@ html.dark{
 	.js-main-container,
 	.js-feed > .sg-layout > .sg-layout__container,
 	.js-react-aside-content > div:nth-child(2) > div,
-	.MessagesListItem__content--3XZu5.sg-media--clickable{
+	.MessagesListItem__content--3XZu5.sg-media--clickable,
+	.UserProfileTabContentWrapper__wrapper--31Lxg,
+	.sg-label--gray-secondary-light{
 		background-color: var(--background-color-light);
 	}
 
@@ -1164,7 +1168,8 @@ html.dark{
 		height: 10px;
 	}
 
-	::-webkit-scrollbar-thumb{
+	::-webkit-scrollbar-thumb,
+	[class*="ScrollablePanel__scrollable"]::-webkit-scrollbar-thumb{
 		background-color: var(--background-color-blue-light);
 		border-radius: 14px;
 	}
